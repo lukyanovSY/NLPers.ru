@@ -12,10 +12,9 @@ try:
 except ImportError:
     Category = Post = Comment = Like = Follow = Newsletter = UserProfile = AuthorRequest = Tag = None
 
-
+"""Админка для категорий постов"""
 @admin.register(Category)
 class CategoryAdmin(BaseModelAdmin):
-    """Админка для категорий постов"""
     list_display = ('name', 'slug', 'image_thumbnail', 'posts_count_display', 'color_display', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
     search_fields = ('name', 'description')
@@ -94,10 +93,9 @@ class CategoryAdmin(BaseModelAdmin):
     add_article_button.short_description = 'Действия'
     image_preview.short_description = 'Превью изображения'
 
-
+"""Админка для тегов"""
 @admin.register(Tag)
 class TagAdmin(BaseModelAdmin):
-    """Админка для тегов"""
     list_display = ('name', 'slug', 'color_display', 'posts_count_display', 'archive_files_count_display', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
     search_fields = ('name', 'description')

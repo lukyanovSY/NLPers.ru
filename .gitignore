@@ -133,6 +133,19 @@ media/
 staticfiles/
 static/admin/
 
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+__pycache__/
+
 # IDE
 .vscode/
 .idea/

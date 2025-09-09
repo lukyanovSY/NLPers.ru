@@ -138,3 +138,7 @@ python manage.py inspectdb
 >URLS: 
 
 {% include "onas/doc/list_doc_lev.html" %}
+
+git remote add origin git@github.com:lukyanovSY/NLPers.ru.git
+
+pip install djangorestframework
