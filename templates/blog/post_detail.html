@@ -1,0 +1,450 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}{{ post.title }} - Блог NLPers.ru{% endblock %}
+
+{% block meny %}
+
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <article class="card shadow-sm">
+                {% if post.featured_image %}
+                <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 400px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <!-- Заголовок -->
+                    <h1 class="card-title mb-4">{{ post.title }}</h1>
+                    
+                    <!-- Метаинформация -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center mb-2">
+                                <small class="text-muted">
+                                    👤 <a href="{% url 'Blog:user_profile' post.author.username %}" class="text-decoration-none fw-bold">
+                                        {{ post.author.get_full_name|default:post.author.username }}
+                                    </a> | 
+                                    📅 {{ post.published_at|date:"d F Y в H:i" }}
+                                    {% if post.category %}
+                                    | 📁 <a href="{% url 'Blog:category_detail' post.category.slug %}" class="text-decoration-none">{{ post.category.name }}</a>
+                                    {% endif %}
+                                    | ⏱️ {{ post.reading_time }} мин чтения
+                                </small>
+                            </div>
+                            
+                            <!-- Теги -->
+                            {% if post.get_tags_list %}
+                            <div class="mb-3">
+                                <strong class="me-2">🏷️ Теги:</strong>
+                                {% for tag in post.get_tags_list %}
+                                <a href="{% url 'Blog:tagged_posts' tag %}" class="badge bg-secondary text-decoration-none me-1">#{{ tag }}</a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 text-md-end">
+                            <!-- Статистика -->
+                            <div class="mb-3">
+                                <span class="badge bg-light text-dark border me-1">
+                                    👁️ {{ post.views_count }}
+                                </span>
+                                <span class="badge bg-danger me-1">
+                                    ❤️ {{ post.likes_count }}
+                                </span>
+                                <span class="badge bg-primary">
+                                    💬 {{ post.comments_count }}
+                                </span>
+                            </div>
+                            
+                            <!-- Кнопки действий -->
+                            {% if user.is_authenticated %}
+                            <div class="btn-group" role="group">
+                                <!-- Кнопка лайка -->
+                                <button type="button" class="btn btn-outline-danger btn-sm like-btn" 
+                                        data-post-id="{{ post.id }}" 
+                                        data-liked="{% if user_liked %}true{% else %}false{% endif %}">
+                                    ❤️ <span class="like-count">{{ post.likes_count }}</span>
+                                </button>
+                                
+                                <!-- Кнопка подписки на автора -->
+                                {% if user != post.author %}
+                                <button type="button" class="btn btn-outline-primary btn-sm follow-btn" 
+                                        data-user-id="{{ post.author.id }}" 
+                                        data-following="{% if user_following_author %}true{% else %}false{% endif %}">
+                                    {% if user_following_author %}
+                                        ✅ Подписан
+                                    {% else %}
+                                        ➕ Подписаться
+                                    {% endif %}
+                                </button>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Содержание поста -->
+                    <div class="post-content mb-5" style="line-height: 1.7;">
+                        {{ post.content|safe }}
+                    </div>
+                    
+                    <!-- Навигация между постами -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% if previous_post %}
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <small class="text-muted">⬅️ Предыдущий пост</small>
+                                    <h6 class="card-title mb-0">
+                                        <a href="{% url 'Blog:post_detail' previous_post.slug %}" class="text-decoration-none">
+                                            {{ previous_post.title|truncatechars:50 }}
+                                        </a>
+                                    </h6>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if next_post %}
+                            <div class="card border-0 bg-light text-end">
+                                <div class="card-body">
+                                    <small class="text-muted">Следующий пост ➡️</small>
+                                    <h6 class="card-title mb-0">
+                                        <a href="{% url 'Blog:post_detail' next_post.slug %}" class="text-decoration-none">
+                                            {{ next_post.title|truncatechars:50 }}
+                                        </a>
+                                    </h6>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- Похожие посты -->
+            {% if related_posts %}
+            <div class="mt-5">
+                <h3 class="mb-4">🔗 Похожие посты</h3>
+                <div class="row">
+                    {% for related_post in related_posts %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            {% if related_post.featured_image %}
+                            <img src="{{ related_post.featured_image.url }}" class="card-img-top" alt="{{ related_post.title }}" style="height: 150px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <a href="{% url 'Blog:post_detail' related_post.slug %}" class="text-decoration-none">{{ related_post.title|truncatechars:60 }}</a>
+                                </h6>
+                                <small class="text-muted">📅 {{ related_post.published_at|date:"d.m.Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Секция комментариев -->
+            {% if post.allow_comments %}
+            <div class="mt-5">
+                <h3 class="mb-4">💬 Комментарии ({{ comments.count }})</h3>
+                
+                {% if user.is_authenticated %}
+                <!-- Форма добавления комментария -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">✍️ Добавить комментарий</h5>
+                        <form id="comment-form" data-post-slug="{{ post.slug }}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <textarea name="content" class="form-control" rows="4" placeholder="Поделитесь своими мыслями о статье..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">📝 Отправить комментарий</button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">🔐 Для добавления комментариев необходимо <a href="{% url 'admin:login' %}" class="alert-link">войти в систему</a>.</p>
+                </div>
+                {% endif %}
+                
+                <!-- Список комментариев -->
+                <div id="comments-list">
+                    {% for comment in comments %}
+                    <div class="card mb-3 comment shadow-sm" data-comment-id="{{ comment.id }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="d-flex align-items-center">
+                                    <strong>👤 {{ comment.author.get_full_name|default:comment.author.username }}</strong>
+                                    <small class="text-muted ms-2">📅 {{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                                </div>
+                                <div>
+                                    {% if user.is_authenticated %}
+                                    <button type="button" class="btn btn-outline-danger btn-sm comment-like-btn" 
+                                            data-comment-id="{{ comment.id }}">
+                                        ❤️ {{ comment.likes_count }}
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <p class="mb-2">{{ comment.content|linebreaks }}</p>
+                            
+                            {% if user.is_authenticated %}
+                            <button type="button" class="btn btn-link btn-sm p-0 reply-btn" data-comment-id="{{ comment.id }}">
+                                💬 Ответить
+                            </button>
+                            {% endif %}
+                            
+                            <!-- Ответы на комментарий -->
+                            {% for reply in comment.get_replies %}
+                            <div class="ms-4 mt-3 p-3 bg-light rounded border-start border-primary border-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <strong>👤 {{ reply.author.get_full_name|default:reply.author.username }}</strong>
+                                        <small class="text-muted ms-2">📅 {{ reply.created_at|date:"d.m.Y H:i" }}</small>
+                                    </div>
+                                    <div>
+                                        {% if user.is_authenticated %}
+                                        <button type="button" class="btn btn-outline-danger btn-sm comment-like-btn" 
+                                                data-comment-id="{{ reply.id }}">
+                                            ❤️ {{ reply.likes_count }}
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <p class="mb-0">{{ reply.content|linebreaks }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if not comments %}
+                <div class="alert alert-light text-center">
+                    <h5>💭 Пока нет комментариев</h5>
+                    <p class="mb-0">Станьте первым, кто поделится мнением об этой статье!</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 20px;">
+                <!-- Информация об авторе -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">👨‍💻 Об авторе</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if post.author.userprofile.avatar %}
+                        <img src="{{ post.author.userprofile.avatar.url }}" class="rounded-circle mb-3" width="80" height="80" alt="{{ post.author.username }}">
+                        {% else %}
+                        <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user fa-2x text-white"></i>
+                        </div>
+                        {% endif %}
+                        <h6>{{ post.author.get_full_name|default:post.author.username }}</h6>
+                        {% if post.author.userprofile.bio %}
+                        <p class="small text-muted">{{ post.author.userprofile.bio|truncatewords:20 }}</p>
+                        {% endif %}
+                        <a href="{% url 'Blog:user_profile' post.author.username %}" class="btn btn-primary btn-sm">
+                            👤 Профиль автора
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Навигация -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">🧭 Навигация</h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'Blog:index' %}" class="btn btn-outline-primary w-100 mb-2">
+                            🏠 Главная блога
+                        </a>
+                        <a href="{% url 'Blog:post_list' %}" class="btn btn-outline-primary w-100 mb-2">
+                            📋 Все посты
+                        </a>
+                        {% if post.category %}
+                        <a href="{% url 'Blog:category_detail' post.category.slug %}" class="btn btn-outline-primary w-100">
+                            📁 {{ post.category.name }}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Поделиться -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">📢 Поделиться</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm" onclick="sharePost('telegram')">
+                                📱 Telegram
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="sharePost('whatsapp')">
+                                💬 WhatsApp
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="copyLink()">
+                                🔗 Копировать ссылку
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Обработка лайков постов
+    const likeBtn = document.querySelector('.like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            const postId = this.dataset.postId;
+            const liked = this.dataset.liked === 'true';
+            
+            fetch('{% url "Blog:toggle_like" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    'content_type': 'post',
+                    'object_id': postId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.liked !== undefined) {
+                    this.dataset.liked = data.liked;
+                    this.querySelector('.like-count').textContent = data.likes_count;
+                    
+                    if (data.liked) {
+                        this.classList.remove('btn-outline-danger');
+                        this.classList.add('btn-danger');
+                    } else {
+                        this.classList.remove('btn-danger');
+                        this.classList.add('btn-outline-danger');
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    }
+    
+    // Обработка подписки на автора
+    const followBtn = document.querySelector('.follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            
+            fetch('{% url "Blog:toggle_follow" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    'follow_type': 'user',
+                    'object_id': userId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.followed !== undefined) {
+                    this.dataset.following = data.followed;
+                    if (data.followed) {
+                        this.innerHTML = '✅ Подписан';
+                        this.classList.remove('btn-outline-primary');
+                        this.classList.add('btn-primary');
+                    } else {
+                        this.innerHTML = '➕ Подписаться';
+                        this.classList.remove('btn-primary');
+                        this.classList.add('btn-outline-primary');
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    }
+});
+
+// Функции для поделиться
+function sharePost(platform) {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent('{{ post.title|escapejs }}');
+    
+    let shareUrl;
+    switch(platform) {
+        case 'telegram':
+            shareUrl = `https://t.me/share/url?url=${url}&text=${title}`;
+            break;
+        case 'whatsapp':
+            shareUrl = `https://wa.me/?text=${title} ${url}`;
+            break;
+    }
+    
+    if (shareUrl) {
+        window.open(shareUrl, '_blank');
+    }
+}
+
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        alert('🔗 Ссылка скопирована в буфер обмена!');
+    });
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.post-content pre {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 15px;
+    overflow-x: auto;
+}
+
+.post-content blockquote {
+    border-left: 4px solid #007bff;
+    padding-left: 20px;
+    margin: 20px 0;
+    font-style: italic;
+}
+
+.comment:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: box-shadow 0.2s;
+}
+</style>
+{% endblock %}

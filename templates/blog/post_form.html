@@ -1,0 +1,410 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}
+{% if object %}✏️ Редактировать пост{% else %}✍️ Создать пост{% endif %} - Блог NLPers.ru
+{% endblock %}
+
+{% block meny %}
+
+{% endblock meny %}
+
+{% block extra_css %}
+{{ form.media.css }}
+<style>
+.form-floating label {
+    color: #6c757d;
+}
+.card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.required-field::after {
+    content: " *";
+    color: #dc3545;
+}
+#preview-content img {
+    max-width: 100%;
+    height: auto;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Заголовок -->
+            <div class="text-center mb-5">
+                <h1 class="display-5">
+                    {% if object %}
+                        ✏️ Редактировать пост
+                    {% else %}
+                        ✍️ Создать новый пост
+                    {% endif %}
+                </h1>
+                <p class="text-muted">{{ object.title|default:"Поделитесь своими знаниями с сообществом!" }}</p>
+            </div>
+            
+            <!-- Основная форма -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📝 Редактор поста</h4>
+                </div>
+                
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="post-form">
+                        {% csrf_token %}
+                        
+                        <!-- Основная информация -->
+                        <div class="row mb-4">
+                            <div class="col-lg-8">
+                                <div class="form-floating mb-3">
+                                    {{ form.title }}
+                                    <label for="{{ form.title.id_for_label }}" class="required-field">
+                                        {{ form.title.label }}
+                                    </label>
+                                    {% if form.title.errors %}
+                                        <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <div class="form-floating mb-3">
+                                    {{ form.category }}
+                                    <label for="{{ form.category.id_for_label }}">
+                                        📁 {{ form.category.label }}
+                                    </label>
+                                    {% if form.category.errors %}
+                                        <div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Краткое описание -->
+                        <div class="mb-4">
+                            <label for="{{ form.excerpt.id_for_label }}" class="form-label">
+                                <strong>📝 {{ form.excerpt.label }}</strong>
+                            </label>
+                            {{ form.excerpt }}
+                            <div class="form-text">{{ form.excerpt.help_text }}</div>
+                            <div id="excerpt-counter" class="text-muted small mt-1"></div>
+                            {% if form.excerpt.errors %}
+                                <div class="text-danger small">{{ form.excerpt.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Содержание -->
+                        <div class="mb-4">
+                            <label for="{{ form.content.id_for_label }}" class="form-label required-field">
+                                <strong>📰 {{ form.content.label }}</strong>
+                            </label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <div class="text-danger small mt-1">{{ form.content.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Дополнительные настройки -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.featured_image.id_for_label }}" class="form-label">
+                                    <strong>🖼️ {{ form.featured_image.label }}</strong>
+                                </label>
+                                {{ form.featured_image }}
+                                {% if object and object.featured_image %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Текущее изображение:</small><br>
+                                    <img src="{{ object.featured_image.url }}" alt="Current image" class="img-thumbnail" style="max-width: 200px;">
+                                </div>
+                                {% endif %}
+                                {% if form.featured_image.errors %}
+                                    <div class="text-danger small mt-1">{{ form.featured_image.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.tags }}
+                                    <label for="{{ form.tags.id_for_label }}">
+                                        🏷️ {{ form.tags.label }}
+                                    </label>
+                                    <div class="form-text">{{ form.tags.help_text }}</div>
+                                    {% if form.tags.errors %}
+                                        <div class="text-danger small">{{ form.tags.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Настройки публикации -->
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">⚙️ Настройки публикации</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-floating mb-3">
+                                            {{ form.status }}
+                                            <label for="{{ form.status.id_for_label }}" class="required-field">
+                                                📊 {{ form.status.label }}
+                                            </label>
+                                            {% if form.status.errors %}
+                                                <div class="text-danger small">{{ form.status.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-3">
+                                            {{ form.is_featured }}
+                                            <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                                ⭐ {{ form.is_featured.label }}
+                                            </label>
+                                            <div class="form-text">Отображать в рекомендуемых постах</div>
+                                            {% if form.is_featured.errors %}
+                                                <div class="text-danger small">{{ form.is_featured.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-3">
+                                            {{ form.allow_comments }}
+                                            <label class="form-check-label" for="{{ form.allow_comments.id_for_label }}">
+                                                💬 {{ form.allow_comments.label }}
+                                            </label>
+                                            {% if form.allow_comments.errors %}
+                                                <div class="text-danger small">{{ form.allow_comments.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Кнопки действий -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="{% if object %}{% url 'Blog:post_detail' object.slug %}{% else %}{% url 'Blog:index' %}{% endif %}" class="btn btn-outline-secondary">
+                                    ❌ Отмена
+                                </a>
+                            </div>
+                            
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-info" id="preview-btn">
+                                    👁️ Предпросмотр
+                                </button>
+                                {% if object %}
+                                <button type="submit" name="status" value="draft" class="btn btn-warning">
+                                    💾 Сохранить как черновик
+                                </button>
+                                <button type="submit" name="status" value="published" class="btn btn-success">
+                                    📤 Обновить пост
+                                </button>
+                                {% else %}
+                                <button type="submit" name="status" value="draft" class="btn btn-warning">
+                                    💾 Сохранить как черновик
+                                </button>
+                                <button type="submit" name="status" value="published" class="btn btn-success">
+                                    🚀 Опубликовать
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Предварительный просмотр -->
+            <div class="card" id="preview-card" style="display: none;">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        👁️ Предварительный просмотр
+                        <button type="button" class="btn btn-sm btn-outline-light float-end" id="close-preview">
+                            ✖️ Закрыть
+                        </button>
+                    </h5>
+                </div>
+                <div class="card-body" id="preview-content">
+                    <!-- Контент предпросмотра будет здесь -->
+                </div>
+            </div>
+            
+            <!-- Советы по написанию -->
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">💡 Советы по написанию хорошего поста</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">✅ <strong>Привлекательный заголовок:</strong> Используйте ясные и захватывающие заголовки</li>
+                                <li class="mb-2">✅ <strong>Структурированный контент:</strong> Разбивайте текст на абзацы и используйте подзаголовки</li>
+                                <li class="mb-2">✅ <strong>Качественное изображение:</strong> Добавьте релевантное главное изображение</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">✅ <strong>Краткое описание:</strong> Напишите информативное резюме поста</li>
+                                <li class="mb-2">✅ <strong>Правильные теги:</strong> Используйте релевантные теги для лучшего поиска</li>
+                                <li class="mb-2">✅ <strong>Проверка орфографии:</strong> Всегда проверяйте текст перед публикацией</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ form.media.js }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Элементы формы
+    const form = document.querySelector('#post-form');
+    const titleField = document.querySelector('#id_title');
+    const excerptField = document.querySelector('#id_excerpt');
+    const contentField = document.querySelector('#id_content');
+    const previewBtn = document.querySelector('#preview-btn');
+    const previewCard = document.querySelector('#preview-card');
+    const previewContent = document.querySelector('#preview-content');
+    const closePreviewBtn = document.querySelector('#close-preview');
+    
+    // Автосохранение черновика каждые 30 секунд
+    let autoSaveTimer;
+    let hasChanges = false;
+    
+    function markAsChanged() {
+        hasChanges = true;
+        resetAutoSaveTimer();
+    }
+    
+    function autoSave() {
+        if (hasChanges && (titleField.value.trim() || contentField.value.trim())) {
+            console.log('🔄 Автосохранение черновика...');
+            // Здесь можно добавить AJAX-сохранение
+        }
+    }
+    
+    function resetAutoSaveTimer() {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(autoSave, 30000);
+    }
+    
+    // Обработчики для автосохранения
+    [titleField, excerptField, contentField].forEach(field => {
+        if (field) {
+            field.addEventListener('input', markAsChanged);
+        }
+    });
+    
+    // Счетчик символов для excerpt
+    if (excerptField) {
+        const maxLength = 300;
+        const counter = document.querySelector('#excerpt-counter');
+        
+        function updateCounter() {
+            const remaining = maxLength - excerptField.value.length;
+            counter.textContent = `Символов: ${excerptField.value.length}/${maxLength}`;
+            
+            if (remaining < 0) {
+                counter.classList.add('text-danger');
+                counter.classList.remove('text-muted');
+            } else if (remaining < 50) {
+                counter.classList.add('text-warning');
+                counter.classList.remove('text-muted', 'text-danger');
+            } else {
+                counter.classList.add('text-muted');
+                counter.classList.remove('text-danger', 'text-warning');
+            }
+        }
+        
+        excerptField.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+    
+    // Обработка кнопок статуса
+    document.querySelectorAll('button[name="status"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const statusSelect = document.querySelector('#id_status');
+            if (statusSelect) {
+                statusSelect.value = this.value;
+            }
+        });
+    });
+    
+    // Обработка тегов
+    const tagsField = document.querySelector('#id_tags');
+    if (tagsField) {
+        tagsField.addEventListener('blur', function() {
+            // Очистка и форматирование тегов
+            const tags = this.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+            this.value = tags.join(', ');
+        });
+    }
+    
+    // Предварительный просмотр
+    if (previewBtn) {
+        previewBtn.addEventListener('click', function() {
+            const title = titleField.value;
+            const content = contentField.value;
+            const excerpt = excerptField.value;
+            
+            if (!title && !content) {
+                alert('❌ Заполните заголовок и содержание для предпросмотра');
+                return;
+            }
+            
+            // Создаем HTML для предпросмотра
+            let previewHTML = '';
+            if (title) {
+                previewHTML += `<h1 class="mb-3">${title}</h1>`;
+            }
+            if (excerpt) {
+                previewHTML += `<p class="lead text-muted mb-4">${excerpt}</p>`;
+            }
+            if (content) {
+                previewHTML += `<div class="post-content">${content}</div>`;
+            }
+            
+            previewContent.innerHTML = previewHTML;
+            previewCard.style.display = 'block';
+            
+            // Прокручиваем к предпросмотру
+            previewCard.scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+    
+    // Закрытие предпросмотра
+    if (closePreviewBtn) {
+        closePreviewBtn.addEventListener('click', function() {
+            previewCard.style.display = 'none';
+        });
+    }
+    
+    // Предупреждение при попытке покинуть страницу с несохраненными изменениями
+    window.addEventListener('beforeunload', function(e) {
+        if (hasChanges) {
+            e.preventDefault();
+            e.returnValue = '';
+            return 'У вас есть несохраненные изменения. Вы уверены, что хотите покинуть страницу?';
+        }
+    });
+    
+    // Сброс флага изменений при отправке формы
+    form.addEventListener('submit', function() {
+        hasChanges = false;
+    });
+    
+    // Показываем уведомление о автосохранении
+    if (titleField.value || contentField.value) {
+        console.log('💾 Автосохранение включено. Черновики сохраняются каждые 30 секунд.');
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,502 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}🏷️ {{ tag.name }} - NLPers.ru{% endblock %}
+
+{% block meny %}
+
+{% endblock meny %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="tag-header-section">
+                <div class="tag-info">
+                    <div class="tag-icon-wrapper" style="background-color: {{ tag.color|default:'#6c757d' }};">
+                        {% if tag.icon %}
+                            <i class="{{ tag.icon }}"></i>
+                        {% else %}
+                            <i class="fas fa-tag"></i>
+                        {% endif %}
+                    </div>
+                    <div class="tag-details">
+                        <h1 class="tag-title">{{ tag.name }}</h1>
+                        {% if tag.description %}
+                            <p class="tag-description">{{ tag.description }}</p>
+                        {% endif %}
+                        <div class="tag-stats">
+                            <span class="posts-count">
+                                <i class="fas fa-file-alt"></i>
+                                {{ total_posts }} статей
+                            </span>
+                            <span class="files-count">
+                                <i class="fas fa-download"></i>
+                                {{ total_files }} файлов
+                            </span>
+                            <span class="total-count">
+                                <i class="fas fa-th-large"></i>
+                                {{ total_content }} всего
+                            </span>
+                            {% if tag.is_active %}
+                                <span class="status-badge active">Активен</span>
+                            {% else %}
+                                <span class="status-badge inactive">Неактивен</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Поиск в теге -->
+            <div class="search-section mb-4">
+                <form method="get" class="search-form">
+                    <div class="input-group">
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="🔍 Поиск в теге '{{ tag.name }}'..."
+                               value="{{ search_query|default:'' }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Найти
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Список контента -->
+            <div class="content-section">
+                {% if content %}
+                    <div class="row">
+                        {% for item in content %}
+                        <div class="col-lg-6 col-md-6 mb-4">
+                            <div class="content-card {% if item.type == 'file' %}file-card{% else %}post-card{% endif %}">
+                                {% if item.type == 'post' and item.image %}
+                                    <div class="content-image">
+                                        <a href="{{ item.url }}">
+                                            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="img-fluid">
+                                        </a>
+                                    </div>
+                                {% elif item.type == 'file' %}
+                                    <div class="file-icon-wrapper">
+                                        <a href="{{ item.url }}">
+                                            {% if item.file_type == 'image' %}
+                                                <i class="fas fa-image file-icon"></i>
+                                            {% elif item.file_type == 'video' %}
+                                                <i class="fas fa-video file-icon"></i>
+                                            {% elif item.file_type == 'audio' %}
+                                                <i class="fas fa-music file-icon"></i>
+                                            {% elif item.file_type == 'document' %}
+                                                <i class="fas fa-file-alt file-icon"></i>
+                                            {% elif item.file_type == 'archive' %}
+                                                <i class="fas fa-archive file-icon"></i>
+                                            {% else %}
+                                                <i class="fas fa-file file-icon"></i>
+                                            {% endif %}
+                                        </a>
+                                    </div>
+                                {% endif %}
+                                <div class="content-info">
+                                    <div class="content-meta">
+                                        <span class="content-date">
+                                            <i class="fas fa-calendar"></i>
+                                            {{ item.date|date:"d.m.Y" }}
+                                        </span>
+                                        {% if item.category %}
+                                            <span class="content-category">
+                                                <i class="fas fa-folder"></i>
+                                                <a href="{{ item.category.get_absolute_url }}">{{ item.category.name }}</a>
+                                            </span>
+                                        {% endif %}
+                                        <span class="content-type-badge {% if item.type == 'file' %}file-badge{% else %}post-badge{% endif %}">
+                                            {% if item.type == 'file' %}
+                                                <i class="fas fa-download"></i> Файл
+                                            {% else %}
+                                                <i class="fas fa-file-alt"></i> Статья
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <h3 class="content-title">
+                                        <a href="{{ item.url }}">{{ item.title }}</a>
+                                    </h3>
+                                    {% if item.excerpt %}
+                                        <p class="content-excerpt">{{ item.excerpt|truncatewords:20 }}</p>
+                                    {% endif %}
+                                    <div class="content-footer">
+                                        <div class="content-author">
+                                            <i class="fas fa-user"></i>
+                                            <a href="{% url 'Blog:user_profile' item.author.username %}">{{ item.author.username }}</a>
+                                        </div>
+                                        <div class="content-stats">
+                                            <span class="views">
+                                                <i class="fas fa-eye"></i>
+                                                {{ item.views }}
+                                            </span>
+                                            <span class="likes">
+                                                <i class="fas fa-heart"></i>
+                                                {{ item.likes }}
+                                            </span>
+                                            {% if item.type == 'post' %}
+                                                <span class="comments">
+                                                    <i class="fas fa-comments"></i>
+                                                    {{ item.comments }}
+                                                </span>
+                                            {% else %}
+                                                <span class="downloads">
+                                                    <i class="fas fa-download"></i>
+                                                    {{ item.downloads }}
+                                                </span>
+                                                <span class="file-size">
+                                                    <i class="fas fa-weight-hanging"></i>
+                                                    {{ item.file_size }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Пагинация -->
+                    {% if content.has_other_pages %}
+                    <div class="pagination-wrapper">
+                        <nav aria-label="Навигация по страницам">
+                            <ul class="pagination justify-content-center">
+                                {% if content.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ content.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                            <i class="fas fa-angle-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in content.paginator.page_range %}
+                                    {% if content.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > content.number|add:'-3' and num < content.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if content.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ content.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                            <i class="fas fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ content.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                            <i class="fas fa-angle-double-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Контент не найден</h3>
+                        <p>В теге "{{ tag.name }}" пока нет статей или файлов, или они не соответствуют поисковому запросу.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.tag-header-section {
+    background: linear-gradient(135deg, {{ tag.color|default:'#6c757d' }} 0%, {{ tag.color|default:'#6c757d' }}80 100%);
+    color: white;
+    padding: 40px 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.tag-info {
+    display: flex;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.tag-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tag-icon-wrapper i {
+    font-size: 2rem;
+    color: white;
+}
+
+.tag-details {
+    flex-grow: 1;
+}
+
+.tag-title {
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.tag-description {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.tag-stats {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.posts-count, .files-count, .total-count {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.posts-count i, .files-count i, .total-count i {
+    margin-right: 5px;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.status-badge.inactive {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.search-form .input-group {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.content-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.content-image {
+    height: 200px;
+    overflow: hidden;
+}
+
+.content-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.content-card:hover .content-image img {
+    transform: scale(1.05);
+}
+
+.file-icon-wrapper {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.file-icon {
+    font-size: 3rem;
+    color: white;
+}
+
+.content-info {
+    padding: 20px;
+}
+
+.content-meta {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+    color: #666;
+    flex-wrap: wrap;
+}
+
+.content-meta span {
+    display: flex;
+    align-items: center;
+}
+
+.content-meta i {
+    margin-right: 5px;
+}
+
+.content-category a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.content-type-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.post-badge {
+    background: #d4edda;
+    color: #155724;
+}
+
+.file-badge {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.content-title {
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.content-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.content-title a:hover {
+    color: #667eea;
+}
+
+.content-excerpt {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.content-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.content-author a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.content-stats {
+    display: flex;
+    gap: 15px;
+    color: #666;
+}
+
+.content-stats span {
+    display: flex;
+    align-items: center;
+}
+
+.content-stats i {
+    margin-right: 3px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.pagination-wrapper {
+    margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+    .tag-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .tag-icon-wrapper {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    
+    .tag-title {
+        font-size: 2rem;
+    }
+    
+    .tag-stats {
+        justify-content: center;
+    }
+    
+    .content-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .content-footer {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,107 @@
+{% load static %}
+
+<!-- МЕНЮ ВЕРХНЕЕ-->
+<header>
+    <div class="menu-area">
+        <div class="col-12">
+            <div class="mobile-nav-toggler"><i class="fas fa-bars"></i></div>
+            <!-- МЕНЮ ВЕРХНЕЕ-->
+            <div class="menu-wrap">
+                <nav class="menu-nav">
+                    <!-- ЛОГОТИП С ПОИСКОМ-->
+                    <div class="logo">
+                        <a href="{% url 'Home:home' %}">
+                            {% if site_settings.logo %}
+                            <img src="{{ site_settings.logo.url }}" alt="{{ site_name }}" style="max-height: 50px;">
+                            {% else %}
+                            <img src="{% static 'nlp/img/logo/logo2.png' %}" alt="{{ site_name }}" style="max-height: 50px;">
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="header-form">
+                        <form action="#">
+                            <button><i class="flaticon-search"></i></button>
+                            <input type="text" placeholder="Search Artwork">
+                        </form>
+                    </div>
+                    <!-- ЛОГОТИП С ПОИСКОМ-->
+                    <!-- МЕНЮ ВЕРХНЕЕ-->
+                    <div class="navbar-wrap main-menu d-none d-lg-flex">
+                        <ul class="navigation">
+                            <li class="active"><a href="{% url 'Home:home' %}">Главная</a></li>
+                            <li><a href="{% url 'Archive:index' %}">Архив</a></li>
+                            <li><a href="collections.html">Галлерея</a></li>
+                            <li class="menu-item-has-children"><a href="#">Содержание</a>
+                                <ul class="submenu">
+                                    <li><a href="activity.html">Activity</a></li>
+                                    <li><a href="category.html">Category</a></li>
+                                    <li><a href="ranking.html">Ranking</a></li>
+                                    
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children"><a href="#">Blog</a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'Blog:index' %}">Наш блог</a></li>
+                                    <li><a href="{% url 'Blog:post_list' %}">Все посты</a></li>
+                                    <li><a href="{% url 'Blog:category_list' %}">Категории</a></li>
+                                    <li><a href="{% url 'Blog:tag_list' %}">Теги</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="header-action d-none d-md-block">
+                        <ul>
+                            {% if user.is_authenticated %}
+                                <!-- Пользователь авторизован -->
+                                <li class="header-user-info">
+                                    <div class="dropdown">
+                                        <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                            👤 {{ user.username }}
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="{% url 'Blog:dashboard' %}">🏠 Личный кабинет</a></li>
+                                            <li><a class="dropdown-item" href="{% url 'Blog:edit_profile' %}">✏️ Редактировать профиль</a></li>
+                                            <li><a class="dropdown-item" href="{% url 'Blog:post_create' %}">➕ Создать пост</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="{% url 'Blog:logout' %}">🚪 Выход</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            {% else %}
+                                <!-- Пользователь не авторизован -->
+                                <li class="header-btn"><a href="{% url 'Blog:login' %}" class="btn">🔐 Вход</a></li>
+                                <li class="header-btn"><a href="{% url 'Blog:register' %}" class="btn btn-primary">📝 Регистрация</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+            <!-- МЕНЮ ВЕРХНЕЕ-->
+
+            <!-- Mobile Menu  -->
+            <div class="mobile-menu">
+                <nav class="menu-box">
+                    <div class="close-btn"><i class="fas fa-times"></i></div>
+                    <div class="nav-logo"><a href="{% url 'Home:home' %}"><img src="{% static 'nlp/img/logo/logo.png' %}" alt=""></a>
+                    </div>
+                    <div class="menu-outer">
+                        <!--Здесь меню появится автоматически через Javascript / То же меню, что и в заголовке-->
+                    </div>
+                    <div class="social-links">
+                        <ul class="clearfix">
+                            <li><a href="#"><span class="fab fa-twitter"></span></a></li>
+                            <li><a href="#"><span class="fab fa-facebook-f"></span></a></li>
+                            <li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
+                            <li><a href="#"><span class="fab fa-instagram"></span></a></li>
+                            <li><a href="#"><span class="fab fa-youtube"></span></a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+            <div class="menu-backdrop"></div>
+            <!-- End Mobile Menu -->
+            
+        </div>
+    </div>
+</header>
+

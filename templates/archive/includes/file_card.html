@@ -1,0 +1,297 @@
+{% load static %}
+
+<div class="file-card" data-file-id="{{ file.pk }}" data-file-type="{{ file.file_type }}">
+    <div class="file-card-header">
+        <!-- Превью файла -->
+        <div class="file-preview">
+            {% if file.thumbnail %}
+                <img src="{{ file.thumbnail.url }}" alt="{{ file.title }}" class="file-thumbnail" 
+                     data-file-url="{{ file.file.url }}" data-file-type="{{ file.file_type }}">
+            {% elif file.file_type == 'image' %}
+                <img src="{{ file.file.url }}" alt="{{ file.title }}" class="file-thumbnail" 
+                     data-file-url="{{ file.file.url }}" data-file-type="{{ file.file_type }}">
+            {% elif file.file_type == 'video' %}
+                <div class="video-preview" data-file-url="{{ file.file.url }}" data-file-type="{{ file.file_type }}">
+                    <i class="fas fa-play-circle"></i>
+                    <span class="video-duration">{{ file.file_extension|upper }}</span>
+                </div>
+            {% else %}
+                <div class="file-icon-preview" data-file-url="{{ file.file.url }}" data-file-type="{{ file.file_type }}">
+                    {% if file.file_type == 'audio' %}
+                        <i class="fas fa-music"></i>
+                    {% elif file.file_type == 'document' %}
+                        <i class="fas fa-file-alt"></i>
+                    {% elif file.file_type == 'archive' %}
+                        <i class="fas fa-archive"></i>
+                    {% else %}
+                        <i class="fas fa-file"></i>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Статус файла -->
+        <div class="file-status">
+            {% if file.is_public %}
+                <span class="status-badge status-public">✅</span>
+            {% else %}
+                <span class="status-badge status-pending">⏳</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="file-card-body">
+        <h5 class="file-title">
+            <a href="{% url 'Archive:file_detail' file.pk %}" class="text-decoration-none">
+                {{ file.title|truncatechars:40 }}
+            </a>
+        </h5>
+        
+        {% if file.description %}
+            <p class="file-description">{{ file.description|truncatewords:10 }}</p>
+        {% endif %}
+        
+        <div class="file-meta">
+            <div class="file-info">
+                <span class="file-size">{{ file.file_size }}</span>
+                <span class="file-extension">{{ file.file_extension|upper }}</span>
+            </div>
+            
+            <div class="file-stats">
+                <span class="stat-item">
+                    <i class="fas fa-download"></i> {{ file.downloads_count }}
+                </span>
+                <span class="stat-item">
+                    <i class="fas fa-eye"></i> {{ file.views_count }}
+                </span>
+            </div>
+        </div>
+        
+        {% if file.category %}
+            <div class="file-category">
+                <span class="category-badge" style="background-color: {{ file.category.color }}">
+                    {{ file.category.name }}
+                </span>
+            </div>
+        {% endif %}
+        
+        <div class="file-actions">
+            <a href="{% url 'Archive:file_detail' file.pk %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i> Просмотр
+            </a>
+            {% if file.is_public %}
+                <a href="{% url 'Archive:file_download' file.pk %}" class="btn btn-sm btn-success">
+                    <i class="fas fa-download"></i> Скачать
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.file-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.file-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.file-card-header {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.file-preview {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.file-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+.video-preview {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    position: relative;
+}
+
+.video-preview i {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.video-duration {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+.file-icon-preview {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #28a745, #20c997);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+}
+
+.file-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-public {
+    background: rgba(40, 167, 69, 0.9);
+    color: white;
+}
+
+.status-pending {
+    background: rgba(255, 193, 7, 0.9);
+    color: #212529;
+}
+
+.file-card-body {
+    padding: 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.file-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+    line-height: 1.3;
+}
+
+.file-title a {
+    color: inherit;
+}
+
+.file-title a:hover {
+    color: #667eea;
+}
+
+.file-description {
+    color: #6c757d;
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.file-meta {
+    margin-bottom: 0.75rem;
+}
+
+.file-info {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.file-size, .file-extension {
+    font-size: 0.7rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+.file-stats {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.stat-item {
+    font-size: 0.7rem;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.file-category {
+    margin-bottom: 0.75rem;
+}
+
+.category-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+}
+
+.file-actions {
+    margin-top: auto;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.file-actions .btn {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 767px) {
+    .file-card-header {
+        height: 150px;
+    }
+    
+    .file-title {
+        font-size: 0.9rem;
+    }
+    
+    .file-description {
+        font-size: 0.75rem;
+    }
+    
+    .file-actions .btn {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.5rem;
+    }
+}
+</style> 
+ 

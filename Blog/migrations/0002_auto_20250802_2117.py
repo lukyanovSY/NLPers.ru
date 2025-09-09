@@ -1,0 +1,176 @@
+# Generated manually
+
+from django.conf import settings
+from django.db import migrations, models
+import django.db.models.deletion
+import django_ckeditor_5.fields
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('Blog', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='Category',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=100, unique=True, verbose_name='Название')),
+                ('slug', models.SlugField(max_length=100, unique=True, verbose_name='URL')),
+                ('description', models.TextField(blank=True, verbose_name='Описание')),
+                ('color', models.CharField(default='#007bff', help_text='HEX цвет для отображения', max_length=7, verbose_name='Цвет')),
+                ('icon', models.CharField(blank=True, help_text='CSS класс Font Awesome', max_length=50, verbose_name='Иконка')),
+                ('is_active', models.BooleanField(default=True, verbose_name='Активна')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
+            ],
+            options={
+                'verbose_name': 'Категория',
+                'verbose_name_plural': 'Категории',
+                'ordering': ['name'],
+            },
+        ),
+        migrations.CreateModel(
+            name='Newsletter',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('email', models.EmailField(max_length=254, unique=True, verbose_name='Email')),
+                ('is_active', models.BooleanField(default=True, verbose_name='Активна')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата подписки')),
+                ('confirmed_at', models.DateTimeField(blank=True, null=True, verbose_name='Дата подтверждения')),
+            ],
+            options={
+                'verbose_name': 'Подписка на рассылку',
+                'verbose_name_plural': 'Подписки на рассылку',
+                'ordering': ['-created_at'],
+            },
+        ),
+        migrations.CreateModel(
+            name='UserProfile',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('bio', models.TextField(blank=True, max_length=500, verbose_name='Биография')),
+                ('avatar', models.ImageField(blank=True, null=True, upload_to='avatars/', verbose_name='Аватар')),
+                ('location', models.CharField(blank=True, max_length=100, verbose_name='Местоположение')),
+                ('website', models.URLField(blank=True, verbose_name='Веб-сайт')),
+                ('github_url', models.URLField(blank=True, verbose_name='GitHub')),
+                ('linkedin_url', models.URLField(blank=True, verbose_name='LinkedIn')),
+                ('is_verified', models.BooleanField(default=False, verbose_name='Верифицирован')),
+                ('followers_count', models.PositiveIntegerField(default=0, verbose_name='Количество подписчиков')),
+                ('following_count', models.PositiveIntegerField(default=0, verbose_name='Количество подписок')),
+                ('posts_count', models.PositiveIntegerField(default=0, verbose_name='Количество постов')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата регистрации')),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='userprofile', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'Профиль пользователя',
+                'verbose_name_plural': 'Профили пользователей',
+            },
+        ),
+        migrations.CreateModel(
+            name='Post',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('title', models.CharField(max_length=200, verbose_name='Заголовок')),
+                ('slug', models.SlugField(max_length=200, unique=True, verbose_name='URL')),
+                ('content', django_ckeditor_5.fields.CKEditor5Field(config_name='extends', verbose_name='Содержание')),
+                ('excerpt', models.TextField(blank=True, max_length=300, verbose_name='Краткое описание')),
+                ('featured_image', models.ImageField(blank=True, null=True, upload_to='posts/', verbose_name='Главное изображение')),
+                ('tags', models.CharField(blank=True, help_text='Разделяйте теги запятыми', max_length=200, verbose_name='Теги')),
+                ('status', models.CharField(choices=[('draft', 'Черновик'), ('published', 'Опубликовано'), ('archived', 'Архивировано')], default='draft', max_length=10, verbose_name='Статус')),
+                ('is_featured', models.BooleanField(default=False, verbose_name='Рекомендуемый пост')),
+                ('allow_comments', models.BooleanField(default=True, verbose_name='Разрешить комментарии')),
+                ('views_count', models.PositiveIntegerField(default=0, verbose_name='Количество просмотров')),
+                ('likes_count', models.PositiveIntegerField(default=0, verbose_name='Количество лайков')),
+                ('comments_count', models.PositiveIntegerField(default=0, verbose_name='Количество комментариев')),
+                ('reading_time', models.PositiveIntegerField(default=1, verbose_name='Время чтения (мин)')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
+                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата обновления')),
+                ('published_at', models.DateTimeField(blank=True, null=True, verbose_name='Дата публикации')),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='posts', to=settings.AUTH_USER_MODEL, verbose_name='Автор')),
+                ('category', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='posts', to='Blog.category', verbose_name='Категория')),
+            ],
+            options={
+                'verbose_name': 'Пост',
+                'verbose_name_plural': 'Посты',
+                'ordering': ['-created_at'],
+                'indexes': [
+                    models.Index(fields=['status', 'published_at'], name='Blog_post_status_827772_idx'),
+                    models.Index(fields=['category', 'status'], name='Blog_post_categor_7d0b98_idx'),
+                    models.Index(fields=['author', 'status'], name='Blog_post_author__ccb55a_idx'),
+                ],
+            },
+        ),
+        migrations.CreateModel(
+            name='Comment',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('content', models.TextField(verbose_name='Содержание')),
+                ('likes_count', models.PositiveIntegerField(default=0, verbose_name='Количество лайков')),
+                ('is_approved', models.BooleanField(default=True, verbose_name='Одобрен')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
+                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата обновления')),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to=settings.AUTH_USER_MODEL)),
+                ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='replies', to='Blog.comment')),
+                ('post', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='Blog.post')),
+            ],
+            options={
+                'verbose_name': 'Комментарий',
+                'verbose_name_plural': 'Комментарии',
+                'ordering': ['-created_at'],
+                'indexes': [
+                    models.Index(fields=['post', 'is_approved'], name='Blog_commen_post_id_22d38c_idx'),
+                    models.Index(fields=['author', 'created_at'], name='Blog_commen_author__7a8047_idx'),
+                ],
+            },
+        ),
+        migrations.CreateModel(
+            name='Like',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('content_type', models.CharField(choices=[('post', 'Пост'), ('comment', 'Комментарий')], max_length=10, verbose_name='Тип контента')),
+                ('object_id', models.PositiveIntegerField(verbose_name='ID объекта')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
+                ('comment', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='comment_likes', to='Blog.comment')),
+                ('post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='post_likes', to='Blog.post')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='likes', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'Лайк',
+                'verbose_name_plural': 'Лайки',
+                'indexes': [
+                    models.Index(fields=['content_type', 'object_id'], name='Blog_like_content_63d145_idx'),
+                    models.Index(fields=['user', 'created_at'], name='Blog_like_user_id_32803b_idx'),
+                ],
+            },
+        ),
+        migrations.CreateModel(
+            name='Follow',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('follow_type', models.CharField(choices=[('user', 'Пользователь'), ('category', 'Категория')], max_length=10, verbose_name='Тип подписки')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата подписки')),
+                ('follower', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='following', to=settings.AUTH_USER_MODEL)),
+                ('following_category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='followers', to='Blog.category')),
+                ('following_user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='followers', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'Подписка',
+                'verbose_name_plural': 'Подписки',
+                'indexes': [
+                    models.Index(fields=['follow_type', 'created_at'], name='Blog_follow_follow__5b7ed4_idx'),
+                    models.Index(fields=['follower', 'follow_type'], name='Blog_follow_followe_af7f4a_idx'),
+                ],
+            },
+        ),
+        migrations.AlterUniqueTogether(
+            name='like',
+            unique_together={('user', 'content_type', 'object_id')},
+        ),
+        migrations.AlterUniqueTogether(
+            name='follow',
+            unique_together={('follower', 'following_user'), ('follower', 'following_category')},
+        ),
+    ]

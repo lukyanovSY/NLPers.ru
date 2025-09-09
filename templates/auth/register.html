@@ -1,0 +1,213 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}📝 Регистрация - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block extra_css %}
+<style>
+.auth-container {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    max-width: 500px;
+    width: 100%;
+}
+
+.auth-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    padding: 2rem;
+    text-align: center;
+    color: white;
+}
+
+.auth-body {
+    padding: 2rem;
+}
+
+.form-floating {
+    margin-bottom: 1rem;
+}
+
+.btn-auth {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    color: white;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.auth-links a {
+    color: #28a745;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.errorlist {
+    color: #dc3545;
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+}
+
+.errorlist li {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 class="mb-0">📝 Регистрация</h2>
+            <p class="mb-0 mt-2 opacity-75">Присоединяйтесь к сообществу!</p>
+        </div>
+        
+        <div class="auth-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ form.first_name }}
+                            <label for="{{ form.first_name.id_for_label }}">👤 Имя</label>
+                        </div>
+                        {% if form.first_name.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.first_name.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{ form.last_name }}
+                            <label for="{{ form.last_name.id_for_label }}">👤 Фамилия</label>
+                        </div>
+                        {% if form.last_name.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.last_name.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-floating">
+                    {{ form.username }}
+                    <label for="{{ form.username.id_for_label }}">🎯 Имя пользователя</label>
+                </div>
+                {% if form.username.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                <div class="form-floating">
+                    {{ form.email }}
+                    <label for="{{ form.email.id_for_label }}">📧 Email</label>
+                </div>
+                {% if form.email.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.email.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                <div class="form-floating">
+                    {{ form.password1 }}
+                    <label for="{{ form.password1.id_for_label }}">🔒 Пароль</label>
+                </div>
+                {% if form.password1.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.password1.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                <div class="form-floating">
+                    {{ form.password2 }}
+                    <label for="{{ form.password2.id_for_label }}">🔒 Подтверждение пароля</label>
+                </div>
+                {% if form.password2.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.password2.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                <div class="form-text mb-3">
+                    <small>
+                        После регистрации вы сможете:
+                        <ul class="mt-2">
+                            <li>💬 Оставлять комментарии</li>
+                            <li>❤️ Ставить лайки</li>
+                            <li>📁 Загружать файлы в архив</li>
+                            <li>📝 Подать заявку на статус автора</li>
+                        </ul>
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn btn-auth">
+                    🚀 Зарегистрироваться
+                </button>
+            </form>
+            
+            <div class="auth-links">
+                <p class="mb-2">Уже есть аккаунт?</p>
+                <a href="{% url 'Blog:login' %}">🔐 Войти в систему</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

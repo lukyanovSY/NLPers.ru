@@ -1,0 +1,295 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}📚 Все категории - NLPers.ru{% endblock %}
+
+{% block meny %}
+
+{% endblock meny %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="section-header">
+                <h1 class="title">
+                    📚 Все категории
+                    <img src="{% static 'nlp/img/icons/title_icon01.png' %}" alt="">
+                </h1>
+                <p class="subtitle">
+                    Исследуйте все рубрики нашего сайта
+                    {% if total_categories %}
+                        <span class="badge bg-primary">{{ total_categories }} категорий</span>
+                    {% endif %}
+                    {% if total_posts %}
+                        <span class="badge bg-success">{{ total_posts }} статей</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Поиск категорий -->
+            <div class="search-section mb-4">
+                <form method="get" class="search-form">
+                    <div class="input-group">
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="🔍 Поиск категорий..."
+                               value="{{ search_query|default:'' }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Найти
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Список категорий -->
+            <div class="row">
+                {% for category in categories %}
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
+                    <div class="category-card">
+                        <div class="category-image">
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-fluid">
+                            {% else %}
+                                <div class="category-placeholder">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="category-content">
+                            <h5 class="category-title">
+                                <a href="{% url 'Blog:category_detail' category.slug %}">
+                                    {{ category.name }}
+                                </a>
+                            </h5>
+                            {% if category.description %}
+                                <p class="category-description">
+                                    {{ category.description|truncatewords:15 }}
+                                </p>
+                            {% endif %}
+                            <div class="category-stats">
+                                <span class="posts-count">
+                                    <i class="fas fa-file-alt"></i>
+                                    {{ category.total_posts|default:0 }} статей
+                                </span>
+                                {% if category.is_active %}
+                                    <span class="status-badge active">Активна</span>
+                                {% else %}
+                                    <span class="status-badge inactive">Неактивна</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>Категории не найдены</h3>
+                        <p>Попробуйте изменить поисковый запрос или обратитесь к администратору.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Пагинация -->
+            {% if is_paginated %}
+            <div class="pagination-wrapper">
+                <nav aria-label="Навигация по страницам">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.category-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.category-image {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.category-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.category-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+}
+
+.category-content {
+    padding: 20px;
+}
+
+.category-title {
+    margin-bottom: 10px;
+}
+
+.category-title a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.category-title a:hover {
+    color: #667eea;
+}
+
+.category-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.category-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.posts-count {
+    color: #666;
+}
+
+.posts-count i {
+    margin-right: 5px;
+    color: #667eea;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.search-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.search-form .input-group {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.pagination-wrapper {
+    margin-top: 40px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-header .title {
+    margin-bottom: 10px;
+}
+
+.section-header .subtitle {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.badge {
+    margin-left: 10px;
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %} 

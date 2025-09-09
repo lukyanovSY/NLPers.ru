@@ -1,0 +1,211 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}Посты с тегом "{{ tag }}" - Блог NLPers.ru{% endblock %}
+
+{% block meny %}
+
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Заголовок -->
+            <div class="text-center mb-5">
+                <h1 class="display-5">
+                    🏷️ Посты с тегом "{{ tag }}"
+                </h1>
+                <p class="lead text-muted">Найдено постов: {{ page_obj.paginator.count }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Посты с тегом -->
+            {% if posts %}
+                {% for post in posts %}
+                <article class="card mb-4 shadow-sm">
+                    <div class="row g-0">
+                        {% if post.featured_image %}
+                        <div class="col-md-4">
+                            <img src="{{ post.featured_image.url }}" class="img-fluid rounded-start h-100" alt="{{ post.title }}" style="object-fit: cover; min-height: 250px;">
+                        </div>
+                        {% endif %}
+                        <div class="col-md-{% if post.featured_image %}8{% else %}12{% endif %}">
+                            <div class="card-body h-100 d-flex flex-column">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title">
+                                        <a href="{% url 'Blog:post_detail' post.slug %}" class="text-decoration-none text-dark">{{ post.title }}</a>
+                                    </h5>
+                                    {% if post.category %}
+                                    <span class="badge bg-primary mb-2">{{ post.category.name }}</span>
+                                    {% endif %}
+                                    <p class="card-text">{{ post.excerpt|truncatewords:40 }}</p>
+                                </div>
+                                
+                                <!-- Теги -->
+                                {% if post.tags %}
+                                <div class="mb-2">
+                                    {% for post_tag in post.get_tags_list %}
+                                    <a href="{% url 'Blog:tagged_posts' post_tag %}" 
+                                       class="badge text-decoration-none me-1 {% if post_tag == tag %}bg-warning{% else %}bg-secondary{% endif %}">
+                                       #{{ post_tag }}
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mt-auto">
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            👤 <a href="{% url 'Blog:user_profile' post.author.username %}" class="text-decoration-none">
+                                                {{ post.author.get_full_name|default:post.author.username }}
+                                            </a> | 
+                                            📅 {{ post.published_at|date:"d.m.Y H:i" }}
+                                        </small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-muted">
+                                                👁️ {{ post.views_count }}
+                                                ❤️ {{ post.likes_count }}
+                                                💬 {{ post.comments_count }}
+                                                ⏱️ {{ post.reading_time }} мин
+                                            </small>
+                                        </div>
+                                        <a href="{% url 'Blog:post_detail' post.slug %}" class="btn btn-primary btn-sm">Читать далее →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+                
+                <!-- Пагинация -->
+                {% if is_paginated %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">⏮️ Первая</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">⬅️ Предыдущая</a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">📄 {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Следующая ➡️</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя ⏭️</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="alert alert-info text-center" role="alert">
+                    <h4 class="alert-heading">🏷️ Постов с тегом "{{ tag }}" не найдено</h4>
+                    <p>Попробуйте поискать другие теги или создайте пост с этим тегом.</p>
+                    <hr>
+                    <div>
+                        <a href="{% url 'Blog:index' %}" class="btn btn-primary me-2">🏠 На главную</a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'Blog:post_create' %}" class="btn btn-success">✍️ Создать пост</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 20px;">
+                <!-- Информация о теге -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">🏷️ О теге</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-warning">#{{ tag }}</h6>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">📝 Постов:</small>
+                            <strong>{{ page_obj.paginator.count }}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Популярные теги -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">🔥 Популярные теги</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-1">
+                            <a href="{% url 'Blog:tagged_posts' 'Python' %}" class="badge bg-secondary text-decoration-none">#Python</a>
+                            <a href="{% url 'Blog:tagged_posts' 'Django' %}" class="badge bg-secondary text-decoration-none">#Django</a>
+                            <a href="{% url 'Blog:tagged_posts' 'JavaScript' %}" class="badge bg-secondary text-decoration-none">#JavaScript</a>
+                            <a href="{% url 'Blog:tagged_posts' 'AI' %}" class="badge bg-secondary text-decoration-none">#AI</a>
+                            <a href="{% url 'Blog:tagged_posts' 'MachineLearning' %}" class="badge bg-secondary text-decoration-none">#MachineLearning</a>
+                            <a href="{% url 'Blog:tagged_posts' 'DataScience' %}" class="badge bg-secondary text-decoration-none">#DataScience</a>
+                            <a href="{% url 'Blog:tagged_posts' 'WebDev' %}" class="badge bg-secondary text-decoration-none">#WebDev</a>
+                            <a href="{% url 'Blog:tagged_posts' 'Tutorial' %}" class="badge bg-secondary text-decoration-none">#Tutorial</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Навигация -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">🧭 Навигация</h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'Blog:index' %}" class="btn btn-outline-primary w-100 mb-2">
+                            🏠 Главная блога
+                        </a>
+                        <a href="{% url 'Blog:post_list' %}" class="btn btn-outline-primary w-100">
+                            📋 Все посты
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Навигационные хлебные крошки -->
+<nav aria-label="breadcrumb" class="mt-4">
+    <div class="container">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'Home:home' %}" class="text-decoration-none">🏠 Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'Blog:index' %}" class="text-decoration-none">📰 Блог</a></li>
+            <li class="breadcrumb-item active" aria-current="page">🏷️ #{{ tag }}</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+.badge.bg-warning {
+    color: #212529 !important;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}Блог - NLPers.ru{% endblock %}
+
+{% block meny %}
+
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4">Добро пожаловать в блог NLPers.ru!</h1>
+                <p class="lead text-muted">Изучайте программирование, искусственный интеллект и науку о данных</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Рекомендуемые посты -->
+    {% if featured_posts %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="mb-4">🌟 Рекомендуемые посты</h2>
+        </div>
+        {% for post in featured_posts %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if post.featured_image %}
+                <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-primary d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-newspaper fa-3x text-white"></i>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-text flex-grow-1">{{ post.excerpt|truncatewords:20 }}</p>
+                    <div class="mt-auto">
+                        <small class="text-muted d-block mb-2">
+                            👤 {{ post.author.get_full_name|default:post.author.username }} | 
+                            📅 {{ post.published_at|date:"d.m.Y" }} |
+                            👁️ {{ post.views_count }} |
+                            ❤️ {{ post.likes_count }}
+                        </small>
+                        <a href="{% url 'Blog:post_detail' post.slug %}" class="btn btn-primary btn-sm">Читать далее →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Последние посты -->
+    <div class="row">
+        <div class="col-lg-8">
+            <h2 class="mb-4">📰 Последние посты</h2>
+            
+            {% if posts %}
+                {% for post in posts %}
+                <article class="card mb-4 shadow-sm">
+                    <div class="row g-0">
+                        {% if post.featured_image %}
+                        <div class="col-md-4">
+                            <img src="{{ post.featured_image.url }}" class="img-fluid rounded-start h-100" alt="{{ post.title }}" style="object-fit: cover; min-height: 200px;">
+                        </div>
+                        {% endif %}
+                        <div class="col-md-{% if post.featured_image %}8{% else %}12{% endif %}">
+                            <div class="card-body h-100 d-flex flex-column">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title">
+                                        <a href="{% url 'Blog:post_detail' post.slug %}" class="text-decoration-none text-dark">{{ post.title }}</a>
+                                    </h5>
+                                    <p class="card-text">{{ post.excerpt|truncatewords:30 }}</p>
+                                </div>
+                                
+                                <div class="mt-auto">
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            👤 <a href="{% url 'Blog:user_profile' post.author.username %}" class="text-decoration-none">{{ post.author.get_full_name|default:post.author.username }}</a> | 
+                                            📅 {{ post.published_at|date:"d.m.Y H:i" }}
+                                            {% if post.category %}
+                                            | 📁 <a href="{% url 'Blog:category_detail' post.category.slug %}" class="text-decoration-none">{{ post.category.name }}</a>
+                                            {% endif %}
+                                        </small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-muted">
+                                                👁️ {{ post.views_count }}
+                                                ❤️ {{ post.likes_count }}
+                                                💬 {{ post.comments_count }}
+                                                ⏱️ {{ post.reading_time }} мин
+                                            </small>
+                                        </div>
+                                        <a href="{% url 'Blog:post_detail' post.slug %}" class="btn btn-outline-primary btn-sm">Читать →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+                
+                <!-- Ссылка на все посты -->
+                <div class="text-center">
+                    <a href="{% url 'Blog:post_list' %}" class="btn btn-primary btn-lg">Посмотреть все посты →</a>
+                </div>
+                
+            {% else %}
+                <div class="alert alert-info text-center" role="alert">
+                    <h4 class="alert-heading">🚀 Скоро здесь появятся интересные статьи!</h4>
+                    <p>В блоге пока нет опубликованных постов.</p>
+                    {% if user.is_authenticated %}
+                    <hr>
+                    <p class="mb-0">
+                        <a href="{% url 'Blog:post_create' %}" class="btn btn-primary">✍️ Создать первый пост</a>
+                    </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 20px;">
+                <!-- Категории -->
+                {% if categories %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">📁 Категории</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for category in categories %}
+                        <div class="d-flex justify-content-between align-items-center mb-3 p-2 rounded hover-bg">
+                            <div class="d-flex align-items-center">
+                                {% if category.image %}
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}" 
+                                     class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                <div class="rounded me-2 d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px; background-color: {{ category.color }}; color: white; font-size: 12px;">
+                                    {% if category.icon %}
+                                    <i class="{{ category.icon }}"></i>
+                                    {% else %}
+                                    📁
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                                <a href="{% url 'Blog:category_detail' category.slug %}" class="text-decoration-none fw-bold">
+                                    {{ category.name }}
+                                </a>
+                            </div>
+                            <span class="badge bg-secondary">{{ category.total_posts|default:0 }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Быстрые действия для авторизованных пользователей -->
+                {% if user.is_authenticated %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">⚡ Быстрые действия</h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'Blog:post_create' %}" class="btn btn-success w-100 mb-2">
+                            ✍️ Написать пост
+                        </a>
+                        <a href="{% url 'Blog:user_profile' user.username %}" class="btn btn-outline-primary w-100">
+                            👤 Мой профиль
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Подписка на рассылку -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">📧 Подписка на новости</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Получайте уведомления о новых интересных постах!</p>
+                        <form method="post" action="{% url 'Blog:newsletter_subscribe' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <input type="email" name="email" class="form-control" placeholder="Ваш email" required>
+                            </div>
+                            <button type="submit" class="btn btn-info w-100">🔔 Подписаться</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Плавающая кнопка для создания поста -->
+{% if user.is_authenticated %}
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+    <a href="{% url 'Blog:post_create' %}" class="btn btn-success btn-lg rounded-circle shadow" title="Создать пост" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+        <i class="fas fa-plus fa-lg"></i>
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hover-bg:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s;
+}
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+</style>
+{% endblock %}

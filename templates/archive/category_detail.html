@@ -1,0 +1,209 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}{{ category.name }} - Архив NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="category-header mb-4">
+                <h1>{{ category.name }}</h1>
+                {% if category.description %}
+                    <p class="text-muted">{{ category.description }}</p>
+                {% endif %}
+                <div class="category-stats">
+                    <span class="badge bg-primary">{{ total_files }} файлов</span>
+                </div>
+            </div>
+
+            {% if files %}
+                <div class="row">
+                    {% for file in files %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="file-card">
+                            <div class="file-icon">
+                                {% if file.file_type == 'image' %}
+                                    <i class="fas fa-image"></i>
+                                {% elif file.file_type == 'video' %}
+                                    <i class="fas fa-video"></i>
+                                {% elif file.file_type == 'audio' %}
+                                    <i class="fas fa-music"></i>
+                                {% elif file.file_type == 'document' %}
+                                    <i class="fas fa-file-alt"></i>
+                                {% elif file.file_type == 'archive' %}
+                                    <i class="fas fa-archive"></i>
+                                {% else %}
+                                    <i class="fas fa-file"></i>
+                                {% endif %}
+                            </div>
+                            <div class="file-info">
+                                <h5>{{ file.title }}</h5>
+                                {% if file.description %}
+                                    <p>{{ file.description|truncatewords:15 }}</p>
+                                {% endif %}
+                                <div class="file-meta">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user"></i> {{ file.uploaded_by.username }}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i> {{ file.uploaded_at|date:"d.m.Y" }}
+                                    </small>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="{{ file.get_absolute_url }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> Просмотр
+                                    </a>
+                                    <a href="{% url 'Archive:file_download' file.pk %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-download"></i> Скачать
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Пагинация -->
+                {% if files.has_other_pages %}
+                <nav aria-label="Навигация по страницам">
+                    <ul class="pagination justify-content-center">
+                        {% if files.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ files.previous_page_number }}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in files.paginator.page_range %}
+                            {% if files.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > files.number|add:'-3' and num < files.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if files.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ files.next_page_number }}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ files.paginator.num_pages }}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="empty-state text-center">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h3>Файлы не найдены</h3>
+                    <p>В этой категории пока нет файлов.</p>
+                </div>
+            {% endif %}
+
+            <div class="mt-4">
+                <a href="{% url 'Archive:index' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Назад в архив
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.category-header {
+    text-align: center;
+    padding: 2rem 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.category-header h1 {
+    margin-bottom: 1rem;
+}
+
+.category-stats {
+    margin-top: 1rem;
+}
+
+.file-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.file-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.file-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.file-icon i {
+    font-size: 3rem;
+}
+
+.file-info {
+    padding: 1.5rem;
+}
+
+.file-info h5 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.file-info p {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.file-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.file-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.empty-state {
+    padding: 3rem 0;
+}
+
+.empty-state i {
+    color: #ddd;
+}
+</style>
+{% endblock %} 

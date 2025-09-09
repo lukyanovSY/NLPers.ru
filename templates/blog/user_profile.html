@@ -1,0 +1,338 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.get_full_name|default:profile_user.username }} - Профиль пользователя{% endblock %}
+
+{% block meny %}
+
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Профиль пользователя -->
+            <div class="card mb-5 shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            {% if profile_user.userprofile.avatar %}
+                            <img src="{{ profile_user.userprofile.avatar.url }}" class="rounded-circle" width="120" height="120" alt="{{ profile_user.username }}">
+                            {% else %}
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                                <i class="fas fa-user fa-3x text-white"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            <h1 class="h2 mb-2">{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+                            {% if profile_user.userprofile.bio %}
+                            <p class="text-muted mb-3">{{ profile_user.userprofile.bio }}</p>
+                            {% endif %}
+                            
+                            <div class="row text-center mb-3">
+                                <div class="col">
+                                    <strong class="d-block h4">{{ posts_count }}</strong>
+                                    <small class="text-muted">📝 Постов</small>
+                                </div>
+                                <div class="col">
+                                    <strong class="d-block h4">{{ followers_count }}</strong>
+                                    <small class="text-muted">👥 Подписчиков</small>
+                                </div>
+                                <div class="col">
+                                    <strong class="d-block h4">{{ following_count }}</strong>
+                                    <small class="text-muted">📋 Подписок</small>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2 mb-3">
+                                {% if profile_user.userprofile.location %}
+                                <span class="badge bg-light text-dark">📍 {{ profile_user.userprofile.location }}</span>
+                                {% endif %}
+                                {% if profile_user.userprofile.is_verified %}
+                                <span class="badge bg-success">✅ Верифицирован</span>
+                                {% endif %}
+                                <span class="badge bg-info">📅 С {{ profile_user.date_joined|date:"M Y" }}</span>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                {% if profile_user.userprofile.website %}
+                                <a href="{{ profile_user.userprofile.website }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    🌐 Веб-сайт
+                                </a>
+                                {% endif %}
+                                {% if profile_user.userprofile.github_url %}
+                                <a href="{{ profile_user.userprofile.github_url }}" target="_blank" class="btn btn-outline-dark btn-sm">
+                                    <i class="fab fa-github"></i> GitHub
+                                </a>
+                                {% endif %}
+                                {% if profile_user.userprofile.linkedin_url %}
+                                <a href="{{ profile_user.userprofile.linkedin_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-linkedin"></i> LinkedIn
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            {% if user.is_authenticated %}
+                                {% if user == profile_user %}
+                                <a href="{% url 'Blog:edit_profile' %}" class="btn btn-primary">
+                                    ⚙️ Редактировать профиль
+                                </a>
+                                {% else %}
+                                <button type="button" class="btn btn-outline-primary follow-user-btn" 
+                                        data-user-id="{{ profile_user.id }}" 
+                                        data-following="{% if is_following %}true{% else %}false{% endif %}">
+                                    {% if is_following %}
+                                        ✅ Отписаться
+                                    {% else %}
+                                        ➕ Подписаться
+                                    {% endif %}
+                                </button>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <h3 class="mb-4">📝 Посты пользователя</h3>
+            
+            <!-- Посты пользователя -->
+            {% if posts %}
+                {% for post in posts %}
+                <article class="card mb-4 shadow-sm">
+                    <div class="row g-0">
+                        {% if post.featured_image %}
+                        <div class="col-md-4">
+                            <img src="{{ post.featured_image.url }}" class="img-fluid rounded-start h-100" alt="{{ post.title }}" style="object-fit: cover; min-height: 200px;">
+                        </div>
+                        {% endif %}
+                        <div class="col-md-{% if post.featured_image %}8{% else %}12{% endif %}">
+                            <div class="card-body h-100 d-flex flex-column">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title">
+                                        <a href="{% url 'Blog:post_detail' post.slug %}" class="text-decoration-none text-dark">{{ post.title }}</a>
+                                    </h5>
+                                    {% if post.category %}
+                                    <span class="badge bg-primary mb-2">{{ post.category.name }}</span>
+                                    {% endif %}
+                                    <p class="card-text">{{ post.excerpt|truncatewords:30 }}</p>
+                                </div>
+                                
+                                <!-- Теги -->
+                                {% if post.tags %}
+                                <div class="mb-2">
+                                    {% for tag in post.get_tags_list %}
+                                    <a href="{% url 'Blog:tagged_posts' tag %}" class="badge bg-secondary text-decoration-none me-1">#{{ tag }}</a>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mt-auto">
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            📅 {{ post.published_at|date:"d.m.Y H:i" }}
+                                        </small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-muted">
+                                                👁️ {{ post.views_count }}
+                                                ❤️ {{ post.likes_count }}
+                                                💬 {{ post.comments_count }}
+                                                ⏱️ {{ post.reading_time }} мин
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'Blog:post_detail' post.slug %}" class="btn btn-primary btn-sm">Читать →</a>
+                                            {% if user == profile_user %}
+                                            <a href="{% url 'Blog:post_edit' post.slug %}" class="btn btn-outline-secondary btn-sm">✏️</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+                
+                <!-- Пагинация -->
+                {% if is_paginated %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">⏮️ Первая</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">⬅️ Предыдущая</a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">📄 {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Следующая ➡️</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя ⏭️</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="alert alert-info text-center" role="alert">
+                    <h4 class="alert-heading">📝 Пока нет постов</h4>
+                    {% if user == profile_user %}
+                    <p>Вы еще не создали ни одного поста.</p>
+                    <hr>
+                    <a href="{% url 'Blog:post_create' %}" class="btn btn-primary">✍️ Создать первый пост</a>
+                    {% else %}
+                    <p>{{ profile_user.get_full_name|default:profile_user.username }} пока не опубликовал ни одного поста.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 20px;">
+                <!-- Активность -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">📊 Активность</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>📅 Зарегистрирован:</span>
+                            <strong>{{ profile_user.date_joined|date:"d.m.Y" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>🕐 Последний вход:</span>
+                            <strong>{{ profile_user.last_login|date:"d.m.Y"|default:"Никогда" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>📝 Всего постов:</span>
+                            <strong>{{ posts_count }}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Быстрые действия -->
+                {% if user.is_authenticated %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">⚡ Действия</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user == profile_user %}
+                        <a href="{% url 'Blog:post_create' %}" class="btn btn-success w-100 mb-2">
+                            ✍️ Создать пост
+                        </a>
+                        <a href="{% url 'Blog:edit_profile' %}" class="btn btn-outline-primary w-100">
+                            ⚙️ Редактировать профиль
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Навигация -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">🧭 Навигация</h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'Blog:index' %}" class="btn btn-outline-primary w-100 mb-2">
+                            🏠 Главная блога
+                        </a>
+                        <a href="{% url 'Blog:post_list' %}" class="btn btn-outline-primary w-100">
+                            📋 Все посты
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Навигационные хлебные крошки -->
+<nav aria-label="breadcrumb" class="mt-4">
+    <div class="container">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'Home:home' %}" class="text-decoration-none">🏠 Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'Blog:index' %}" class="text-decoration-none">📰 Блог</a></li>
+            <li class="breadcrumb-item active" aria-current="page">👤 {{ profile_user.get_full_name|default:profile_user.username }}</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка подписки на пользователя
+    const followBtn = document.querySelector('.follow-user-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            const following = this.dataset.following === 'true';
+            
+            fetch('{% url "Blog:toggle_follow" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    'follow_type': 'user',
+                    'object_id': userId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.followed !== undefined) {
+                    this.dataset.following = data.followed;
+                    if (data.followed) {
+                        this.innerHTML = '✅ Отписаться';
+                        this.classList.remove('btn-outline-primary');
+                        this.classList.add('btn-primary');
+                    } else {
+                        this.innerHTML = '➕ Подписаться';
+                        this.classList.remove('btn-primary');
+                        this.classList.add('btn-outline-primary');
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+.fab {
+    width: 16px;
+}
+</style>
+{% endblock %}

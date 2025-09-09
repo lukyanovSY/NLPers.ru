@@ -1,0 +1,41 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}Все файлы - Архив NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-5">📋 Все файлы</h1>
+                <p class="lead text-muted">Полный список файлов в архиве</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            {% if files %}
+                <div class="row">
+                    {% for file in recent_files %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        {% include 'archive/includes/file_card.html' with file=file %}
+                    </div>
+                    {% endfor %}
+                </div>  
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <h4>📂 Файлы не найдены</h4>
+                    <p>В архиве пока нет файлов.</p>
+                    <a href="{% url 'Archive:index' %}" class="btn btn-primary">🏠 На главную архива</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

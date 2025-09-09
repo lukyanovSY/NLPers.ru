@@ -1,0 +1,2628 @@
+<!-- Модальное окно для просмотра медиа -->
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Просмотр файла</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="media-container">
+                    <!-- Изображение -->
+                    <div id="imageViewer" class="media-viewer" style="display: none;">
+                        <div class="image-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomIn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomOut">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="resetZoom">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadImage">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="image-wrapper">
+                            <img id="modalImage" src="" alt="" class="modal-image">
+                        </div>
+                    </div>
+                    
+                    <!-- Видео -->
+                    <div id="videoViewer" class="media-viewer" style="display: none;">
+                        <div class="video-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadVideo">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <video id="modalVideo" controls class="modal-video">
+                            <source src="" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    
+                    <!-- Аудио -->
+                    <div id="audioViewer" class="media-viewer" style="display: none;">
+                        <div class="audio-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadAudio">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <audio id="modalAudio" controls class="modal-audio">
+                            <source src="" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио.
+                        </audio>
+                    </div>
+                    
+                    <!-- Документ -->
+                    <div id="documentViewer" class="media-viewer" style="display: none;">
+                        <div class="document-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadDocument">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <div class="document-info">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5 id="documentTitle"></h5>
+                            <p id="documentDescription" class="text-muted"></p>
+                            <div class="document-meta">
+                                <span id="documentSize" class="badge bg-secondary me-2"></span>
+                                <span id="documentType" class="badge bg-info"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.media-container {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-viewer {
+    width: 100%;
+    text-align: center;
+}
+
+.image-controls, .video-controls, .audio-controls, .document-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.modal-image.zoomed {
+    cursor: zoom-out;
+}
+
+.modal-video {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-audio {
+    width: 100%;
+    max-width: 500px;
+}
+
+.document-info {
+    padding: 2rem;
+    text-align: center;
+}
+
+.document-meta {
+    margin-top: 1rem;
+}
+
+.modal-xl {
+    max-width: 90%;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+    
+    .image-controls, .video-controls, .audio-controls, .document-controls {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+// Глобальные переменные для управления зумом
+let currentZoom = 1;
+const zoomStep = 0.2;
+const maxZoom = 3;
+const minZoom = 0.5;
+
+// Функция для открытия модального окна
+function openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize) {
+    const modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+    const modalTitle = document.getElementById('mediaModalLabel');
+    
+    // Скрываем все viewer'ы
+    document.querySelectorAll('.media-viewer').forEach(viewer => {
+        viewer.style.display = 'none';
+    });
+    
+    // Устанавливаем заголовок
+    modalTitle.textContent = fileName;
+    
+    // Показываем соответствующий viewer в зависимости от типа файла
+    if (fileType === 'image') {
+        const imageViewer = document.getElementById('imageViewer');
+        const modalImage = document.getElementById('modalImage');
+        
+        imageViewer.style.display = 'block';
+        modalImage.src = fileUrl;
+        modalImage.alt = fileName;
+        
+        // Сбрасываем зум
+        resetImageZoom();
+        
+        // Настраиваем кнопки для изображения
+        setupImageControls(fileUrl);
+        
+    } else if (fileType === 'video') {
+        const videoViewer = document.getElementById('videoViewer');
+        const modalVideo = document.getElementById('modalVideo');
+        
+        videoViewer.style.display = 'block';
+        modalVideo.src = fileUrl;
+        
+        // Настраиваем кнопки для видео
+        setupVideoControls(fileUrl);
+        
+    } else if (fileType === 'audio') {
+        const audioViewer = document.getElementById('audioViewer');
+        const modalAudio = document.getElementById('modalAudio');
+        
+        audioViewer.style.display = 'block';
+        modalAudio.src = fileUrl;
+        
+        // Настраиваем кнопки для аудио
+        setupAudioControls(fileUrl);
+        
+    } else {
+        // Для документов и других файлов
+        const documentViewer = document.getElementById('documentViewer');
+        const documentTitle = document.getElementById('documentTitle');
+        const documentDescription = document.getElementById('documentDescription');
+        const documentSize = document.getElementById('documentSize');
+        const documentType = document.getElementById('documentType');
+        
+        documentViewer.style.display = 'block';
+        documentTitle.textContent = fileName;
+        documentDescription.textContent = fileDescription || 'Описание отсутствует';
+        documentSize.textContent = fileSize || '';
+        documentType.textContent = fileType.toUpperCase();
+        
+        // Настраиваем кнопки для документа
+        setupDocumentControls(fileUrl);
+    }
+    
+    modal.show();
+}
+
+// Функции для управления изображением
+function setupImageControls(fileUrl) {
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const resetZoomBtn = document.getElementById('resetZoom');
+    const downloadBtn = document.getElementById('downloadImage');
+    const modalImage = document.getElementById('modalImage');
+    
+    zoomInBtn.onclick = () => zoomImage(zoomStep);
+    zoomOutBtn.onclick = () => zoomImage(-zoomStep);
+    resetZoomBtn.onclick = resetImageZoom;
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+    
+    // Двойной клик для сброса зума
+    modalImage.ondblclick = resetImageZoom;
+    
+    // Колесико мыши для зума
+    modalImage.onwheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+        zoomImage(delta);
+    };
+}
+
+function zoomImage(delta) {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+    
+    modalImage.style.transform = `scale(${currentZoom})`;
+    
+    if (currentZoom > 1) {
+        modalImage.classList.add('zoomed');
+    } else {
+        modalImage.classList.remove('zoomed');
+    }
+}
+
+function resetImageZoom() {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = 1;
+    modalImage.style.transform = 'scale(1)';
+    modalImage.classList.remove('zoomed');
+}
+
+// Функции для управления видео
+function setupVideoControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadVideo');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления аудио
+function setupAudioControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadAudio');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления документами
+function setupDocumentControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadDocument');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функция для скачивания файла
+function downloadFile(fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = '';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Обработчики для карточек файлов
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик клика на карточки файлов
+    document.querySelectorAll('.file-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Не открываем модальное окно, если кликнули на ссылку
+            if (e.target.closest('a')) {
+                return;
+            }
+            
+            const fileUrl = this.querySelector('[data-file-url]').dataset.fileUrl;
+            const fileType = this.querySelector('[data-file-type]').dataset.fileType;
+            const fileName = this.querySelector('.file-title').textContent.trim();
+            const fileDescription = this.querySelector('.file-description')?.textContent.trim() || '';
+            const fileSize = this.querySelector('.file-size')?.textContent.trim() || '';
+            
+            openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize);
+        });
+    });
+});
+</script> 
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Просмотр файла</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="media-container">
+                    <!-- Изображение -->
+                    <div id="imageViewer" class="media-viewer" style="display: none;">
+                        <div class="image-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomIn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomOut">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="resetZoom">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadImage">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="image-wrapper">
+                            <img id="modalImage" src="" alt="" class="modal-image">
+                        </div>
+                    </div>
+                    
+                    <!-- Видео -->
+                    <div id="videoViewer" class="media-viewer" style="display: none;">
+                        <div class="video-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadVideo">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <video id="modalVideo" controls class="modal-video">
+                            <source src="" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    
+                    <!-- Аудио -->
+                    <div id="audioViewer" class="media-viewer" style="display: none;">
+                        <div class="audio-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadAudio">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <audio id="modalAudio" controls class="modal-audio">
+                            <source src="" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио.
+                        </audio>
+                    </div>
+                    
+                    <!-- Документ -->
+                    <div id="documentViewer" class="media-viewer" style="display: none;">
+                        <div class="document-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadDocument">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <div class="document-info">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5 id="documentTitle"></h5>
+                            <p id="documentDescription" class="text-muted"></p>
+                            <div class="document-meta">
+                                <span id="documentSize" class="badge bg-secondary me-2"></span>
+                                <span id="documentType" class="badge bg-info"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.media-container {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-viewer {
+    width: 100%;
+    text-align: center;
+}
+
+.image-controls, .video-controls, .audio-controls, .document-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.modal-image.zoomed {
+    cursor: zoom-out;
+}
+
+.modal-video {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-audio {
+    width: 100%;
+    max-width: 500px;
+}
+
+.document-info {
+    padding: 2rem;
+    text-align: center;
+}
+
+.document-meta {
+    margin-top: 1rem;
+}
+
+.modal-xl {
+    max-width: 90%;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+    
+    .image-controls, .video-controls, .audio-controls, .document-controls {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+// Глобальные переменные для управления зумом
+let currentZoom = 1;
+const zoomStep = 0.2;
+const maxZoom = 3;
+const minZoom = 0.5;
+
+// Функция для открытия модального окна
+function openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize) {
+    const modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+    const modalTitle = document.getElementById('mediaModalLabel');
+    
+    // Скрываем все viewer'ы
+    document.querySelectorAll('.media-viewer').forEach(viewer => {
+        viewer.style.display = 'none';
+    });
+    
+    // Устанавливаем заголовок
+    modalTitle.textContent = fileName;
+    
+    // Показываем соответствующий viewer в зависимости от типа файла
+    if (fileType === 'image') {
+        const imageViewer = document.getElementById('imageViewer');
+        const modalImage = document.getElementById('modalImage');
+        
+        imageViewer.style.display = 'block';
+        modalImage.src = fileUrl;
+        modalImage.alt = fileName;
+        
+        // Сбрасываем зум
+        resetImageZoom();
+        
+        // Настраиваем кнопки для изображения
+        setupImageControls(fileUrl);
+        
+    } else if (fileType === 'video') {
+        const videoViewer = document.getElementById('videoViewer');
+        const modalVideo = document.getElementById('modalVideo');
+        
+        videoViewer.style.display = 'block';
+        modalVideo.src = fileUrl;
+        
+        // Настраиваем кнопки для видео
+        setupVideoControls(fileUrl);
+        
+    } else if (fileType === 'audio') {
+        const audioViewer = document.getElementById('audioViewer');
+        const modalAudio = document.getElementById('modalAudio');
+        
+        audioViewer.style.display = 'block';
+        modalAudio.src = fileUrl;
+        
+        // Настраиваем кнопки для аудио
+        setupAudioControls(fileUrl);
+        
+    } else {
+        // Для документов и других файлов
+        const documentViewer = document.getElementById('documentViewer');
+        const documentTitle = document.getElementById('documentTitle');
+        const documentDescription = document.getElementById('documentDescription');
+        const documentSize = document.getElementById('documentSize');
+        const documentType = document.getElementById('documentType');
+        
+        documentViewer.style.display = 'block';
+        documentTitle.textContent = fileName;
+        documentDescription.textContent = fileDescription || 'Описание отсутствует';
+        documentSize.textContent = fileSize || '';
+        documentType.textContent = fileType.toUpperCase();
+        
+        // Настраиваем кнопки для документа
+        setupDocumentControls(fileUrl);
+    }
+    
+    modal.show();
+}
+
+// Функции для управления изображением
+function setupImageControls(fileUrl) {
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const resetZoomBtn = document.getElementById('resetZoom');
+    const downloadBtn = document.getElementById('downloadImage');
+    const modalImage = document.getElementById('modalImage');
+    
+    zoomInBtn.onclick = () => zoomImage(zoomStep);
+    zoomOutBtn.onclick = () => zoomImage(-zoomStep);
+    resetZoomBtn.onclick = resetImageZoom;
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+    
+    // Двойной клик для сброса зума
+    modalImage.ondblclick = resetImageZoom;
+    
+    // Колесико мыши для зума
+    modalImage.onwheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+        zoomImage(delta);
+    };
+}
+
+function zoomImage(delta) {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+    
+    modalImage.style.transform = `scale(${currentZoom})`;
+    
+    if (currentZoom > 1) {
+        modalImage.classList.add('zoomed');
+    } else {
+        modalImage.classList.remove('zoomed');
+    }
+}
+
+function resetImageZoom() {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = 1;
+    modalImage.style.transform = 'scale(1)';
+    modalImage.classList.remove('zoomed');
+}
+
+// Функции для управления видео
+function setupVideoControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadVideo');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления аудио
+function setupAudioControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadAudio');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления документами
+function setupDocumentControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadDocument');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функция для скачивания файла
+function downloadFile(fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = '';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Обработчики для карточек файлов
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик клика на карточки файлов
+    document.querySelectorAll('.file-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Не открываем модальное окно, если кликнули на ссылку
+            if (e.target.closest('a')) {
+                return;
+            }
+            
+            const fileUrl = this.querySelector('[data-file-url]').dataset.fileUrl;
+            const fileType = this.querySelector('[data-file-type]').dataset.fileType;
+            const fileName = this.querySelector('.file-title').textContent.trim();
+            const fileDescription = this.querySelector('.file-description')?.textContent.trim() || '';
+            const fileSize = this.querySelector('.file-size')?.textContent.trim() || '';
+            
+            openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize);
+        });
+    });
+});
+</script> 
+ 
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Просмотр файла</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="media-container">
+                    <!-- Изображение -->
+                    <div id="imageViewer" class="media-viewer" style="display: none;">
+                        <div class="image-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomIn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomOut">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="resetZoom">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadImage">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="image-wrapper">
+                            <img id="modalImage" src="" alt="" class="modal-image">
+                        </div>
+                    </div>
+                    
+                    <!-- Видео -->
+                    <div id="videoViewer" class="media-viewer" style="display: none;">
+                        <div class="video-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadVideo">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <video id="modalVideo" controls class="modal-video">
+                            <source src="" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    
+                    <!-- Аудио -->
+                    <div id="audioViewer" class="media-viewer" style="display: none;">
+                        <div class="audio-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadAudio">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <audio id="modalAudio" controls class="modal-audio">
+                            <source src="" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио.
+                        </audio>
+                    </div>
+                    
+                    <!-- Документ -->
+                    <div id="documentViewer" class="media-viewer" style="display: none;">
+                        <div class="document-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadDocument">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <div class="document-info">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5 id="documentTitle"></h5>
+                            <p id="documentDescription" class="text-muted"></p>
+                            <div class="document-meta">
+                                <span id="documentSize" class="badge bg-secondary me-2"></span>
+                                <span id="documentType" class="badge bg-info"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.media-container {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-viewer {
+    width: 100%;
+    text-align: center;
+}
+
+.image-controls, .video-controls, .audio-controls, .document-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.modal-image.zoomed {
+    cursor: zoom-out;
+}
+
+.modal-video {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-audio {
+    width: 100%;
+    max-width: 500px;
+}
+
+.document-info {
+    padding: 2rem;
+    text-align: center;
+}
+
+.document-meta {
+    margin-top: 1rem;
+}
+
+.modal-xl {
+    max-width: 90%;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+    
+    .image-controls, .video-controls, .audio-controls, .document-controls {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+// Глобальные переменные для управления зумом
+let currentZoom = 1;
+const zoomStep = 0.2;
+const maxZoom = 3;
+const minZoom = 0.5;
+
+// Функция для открытия модального окна
+function openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize) {
+    const modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+    const modalTitle = document.getElementById('mediaModalLabel');
+    
+    // Скрываем все viewer'ы
+    document.querySelectorAll('.media-viewer').forEach(viewer => {
+        viewer.style.display = 'none';
+    });
+    
+    // Устанавливаем заголовок
+    modalTitle.textContent = fileName;
+    
+    // Показываем соответствующий viewer в зависимости от типа файла
+    if (fileType === 'image') {
+        const imageViewer = document.getElementById('imageViewer');
+        const modalImage = document.getElementById('modalImage');
+        
+        imageViewer.style.display = 'block';
+        modalImage.src = fileUrl;
+        modalImage.alt = fileName;
+        
+        // Сбрасываем зум
+        resetImageZoom();
+        
+        // Настраиваем кнопки для изображения
+        setupImageControls(fileUrl);
+        
+    } else if (fileType === 'video') {
+        const videoViewer = document.getElementById('videoViewer');
+        const modalVideo = document.getElementById('modalVideo');
+        
+        videoViewer.style.display = 'block';
+        modalVideo.src = fileUrl;
+        
+        // Настраиваем кнопки для видео
+        setupVideoControls(fileUrl);
+        
+    } else if (fileType === 'audio') {
+        const audioViewer = document.getElementById('audioViewer');
+        const modalAudio = document.getElementById('modalAudio');
+        
+        audioViewer.style.display = 'block';
+        modalAudio.src = fileUrl;
+        
+        // Настраиваем кнопки для аудио
+        setupAudioControls(fileUrl);
+        
+    } else {
+        // Для документов и других файлов
+        const documentViewer = document.getElementById('documentViewer');
+        const documentTitle = document.getElementById('documentTitle');
+        const documentDescription = document.getElementById('documentDescription');
+        const documentSize = document.getElementById('documentSize');
+        const documentType = document.getElementById('documentType');
+        
+        documentViewer.style.display = 'block';
+        documentTitle.textContent = fileName;
+        documentDescription.textContent = fileDescription || 'Описание отсутствует';
+        documentSize.textContent = fileSize || '';
+        documentType.textContent = fileType.toUpperCase();
+        
+        // Настраиваем кнопки для документа
+        setupDocumentControls(fileUrl);
+    }
+    
+    modal.show();
+}
+
+// Функции для управления изображением
+function setupImageControls(fileUrl) {
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const resetZoomBtn = document.getElementById('resetZoom');
+    const downloadBtn = document.getElementById('downloadImage');
+    const modalImage = document.getElementById('modalImage');
+    
+    zoomInBtn.onclick = () => zoomImage(zoomStep);
+    zoomOutBtn.onclick = () => zoomImage(-zoomStep);
+    resetZoomBtn.onclick = resetImageZoom;
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+    
+    // Двойной клик для сброса зума
+    modalImage.ondblclick = resetImageZoom;
+    
+    // Колесико мыши для зума
+    modalImage.onwheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+        zoomImage(delta);
+    };
+}
+
+function zoomImage(delta) {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+    
+    modalImage.style.transform = `scale(${currentZoom})`;
+    
+    if (currentZoom > 1) {
+        modalImage.classList.add('zoomed');
+    } else {
+        modalImage.classList.remove('zoomed');
+    }
+}
+
+function resetImageZoom() {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = 1;
+    modalImage.style.transform = 'scale(1)';
+    modalImage.classList.remove('zoomed');
+}
+
+// Функции для управления видео
+function setupVideoControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadVideo');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления аудио
+function setupAudioControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadAudio');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления документами
+function setupDocumentControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadDocument');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функция для скачивания файла
+function downloadFile(fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = '';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Обработчики для карточек файлов
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик клика на карточки файлов
+    document.querySelectorAll('.file-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Не открываем модальное окно, если кликнули на ссылку
+            if (e.target.closest('a')) {
+                return;
+            }
+            
+            const fileUrl = this.querySelector('[data-file-url]').dataset.fileUrl;
+            const fileType = this.querySelector('[data-file-type]').dataset.fileType;
+            const fileName = this.querySelector('.file-title').textContent.trim();
+            const fileDescription = this.querySelector('.file-description')?.textContent.trim() || '';
+            const fileSize = this.querySelector('.file-size')?.textContent.trim() || '';
+            
+            openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize);
+        });
+    });
+});
+</script> 
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Просмотр файла</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="media-container">
+                    <!-- Изображение -->
+                    <div id="imageViewer" class="media-viewer" style="display: none;">
+                        <div class="image-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomIn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomOut">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="resetZoom">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadImage">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="image-wrapper">
+                            <img id="modalImage" src="" alt="" class="modal-image">
+                        </div>
+                    </div>
+                    
+                    <!-- Видео -->
+                    <div id="videoViewer" class="media-viewer" style="display: none;">
+                        <div class="video-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadVideo">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <video id="modalVideo" controls class="modal-video">
+                            <source src="" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    
+                    <!-- Аудио -->
+                    <div id="audioViewer" class="media-viewer" style="display: none;">
+                        <div class="audio-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadAudio">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <audio id="modalAudio" controls class="modal-audio">
+                            <source src="" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио.
+                        </audio>
+                    </div>
+                    
+                    <!-- Документ -->
+                    <div id="documentViewer" class="media-viewer" style="display: none;">
+                        <div class="document-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadDocument">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <div class="document-info">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5 id="documentTitle"></h5>
+                            <p id="documentDescription" class="text-muted"></p>
+                            <div class="document-meta">
+                                <span id="documentSize" class="badge bg-secondary me-2"></span>
+                                <span id="documentType" class="badge bg-info"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.media-container {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-viewer {
+    width: 100%;
+    text-align: center;
+}
+
+.image-controls, .video-controls, .audio-controls, .document-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.modal-image.zoomed {
+    cursor: zoom-out;
+}
+
+.modal-video {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-audio {
+    width: 100%;
+    max-width: 500px;
+}
+
+.document-info {
+    padding: 2rem;
+    text-align: center;
+}
+
+.document-meta {
+    margin-top: 1rem;
+}
+
+.modal-xl {
+    max-width: 90%;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+    
+    .image-controls, .video-controls, .audio-controls, .document-controls {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+// Глобальные переменные для управления зумом
+let currentZoom = 1;
+const zoomStep = 0.2;
+const maxZoom = 3;
+const minZoom = 0.5;
+
+// Функция для открытия модального окна
+function openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize) {
+    const modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+    const modalTitle = document.getElementById('mediaModalLabel');
+    
+    // Скрываем все viewer'ы
+    document.querySelectorAll('.media-viewer').forEach(viewer => {
+        viewer.style.display = 'none';
+    });
+    
+    // Устанавливаем заголовок
+    modalTitle.textContent = fileName;
+    
+    // Показываем соответствующий viewer в зависимости от типа файла
+    if (fileType === 'image') {
+        const imageViewer = document.getElementById('imageViewer');
+        const modalImage = document.getElementById('modalImage');
+        
+        imageViewer.style.display = 'block';
+        modalImage.src = fileUrl;
+        modalImage.alt = fileName;
+        
+        // Сбрасываем зум
+        resetImageZoom();
+        
+        // Настраиваем кнопки для изображения
+        setupImageControls(fileUrl);
+        
+    } else if (fileType === 'video') {
+        const videoViewer = document.getElementById('videoViewer');
+        const modalVideo = document.getElementById('modalVideo');
+        
+        videoViewer.style.display = 'block';
+        modalVideo.src = fileUrl;
+        
+        // Настраиваем кнопки для видео
+        setupVideoControls(fileUrl);
+        
+    } else if (fileType === 'audio') {
+        const audioViewer = document.getElementById('audioViewer');
+        const modalAudio = document.getElementById('modalAudio');
+        
+        audioViewer.style.display = 'block';
+        modalAudio.src = fileUrl;
+        
+        // Настраиваем кнопки для аудио
+        setupAudioControls(fileUrl);
+        
+    } else {
+        // Для документов и других файлов
+        const documentViewer = document.getElementById('documentViewer');
+        const documentTitle = document.getElementById('documentTitle');
+        const documentDescription = document.getElementById('documentDescription');
+        const documentSize = document.getElementById('documentSize');
+        const documentType = document.getElementById('documentType');
+        
+        documentViewer.style.display = 'block';
+        documentTitle.textContent = fileName;
+        documentDescription.textContent = fileDescription || 'Описание отсутствует';
+        documentSize.textContent = fileSize || '';
+        documentType.textContent = fileType.toUpperCase();
+        
+        // Настраиваем кнопки для документа
+        setupDocumentControls(fileUrl);
+    }
+    
+    modal.show();
+}
+
+// Функции для управления изображением
+function setupImageControls(fileUrl) {
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const resetZoomBtn = document.getElementById('resetZoom');
+    const downloadBtn = document.getElementById('downloadImage');
+    const modalImage = document.getElementById('modalImage');
+    
+    zoomInBtn.onclick = () => zoomImage(zoomStep);
+    zoomOutBtn.onclick = () => zoomImage(-zoomStep);
+    resetZoomBtn.onclick = resetImageZoom;
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+    
+    // Двойной клик для сброса зума
+    modalImage.ondblclick = resetImageZoom;
+    
+    // Колесико мыши для зума
+    modalImage.onwheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+        zoomImage(delta);
+    };
+}
+
+function zoomImage(delta) {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+    
+    modalImage.style.transform = `scale(${currentZoom})`;
+    
+    if (currentZoom > 1) {
+        modalImage.classList.add('zoomed');
+    } else {
+        modalImage.classList.remove('zoomed');
+    }
+}
+
+function resetImageZoom() {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = 1;
+    modalImage.style.transform = 'scale(1)';
+    modalImage.classList.remove('zoomed');
+}
+
+// Функции для управления видео
+function setupVideoControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadVideo');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления аудио
+function setupAudioControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadAudio');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления документами
+function setupDocumentControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadDocument');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функция для скачивания файла
+function downloadFile(fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = '';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Обработчики для карточек файлов
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик клика на карточки файлов
+    document.querySelectorAll('.file-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Не открываем модальное окно, если кликнули на ссылку
+            if (e.target.closest('a')) {
+                return;
+            }
+            
+            const fileUrl = this.querySelector('[data-file-url]').dataset.fileUrl;
+            const fileType = this.querySelector('[data-file-type]').dataset.fileType;
+            const fileName = this.querySelector('.file-title').textContent.trim();
+            const fileDescription = this.querySelector('.file-description')?.textContent.trim() || '';
+            const fileSize = this.querySelector('.file-size')?.textContent.trim() || '';
+            
+            openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize);
+        });
+    });
+});
+</script> 
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Просмотр файла</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="media-container">
+                    <!-- Изображение -->
+                    <div id="imageViewer" class="media-viewer" style="display: none;">
+                        <div class="image-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomIn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomOut">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="resetZoom">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadImage">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="image-wrapper">
+                            <img id="modalImage" src="" alt="" class="modal-image">
+                        </div>
+                    </div>
+                    
+                    <!-- Видео -->
+                    <div id="videoViewer" class="media-viewer" style="display: none;">
+                        <div class="video-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadVideo">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <video id="modalVideo" controls class="modal-video">
+                            <source src="" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    
+                    <!-- Аудио -->
+                    <div id="audioViewer" class="media-viewer" style="display: none;">
+                        <div class="audio-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadAudio">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <audio id="modalAudio" controls class="modal-audio">
+                            <source src="" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио.
+                        </audio>
+                    </div>
+                    
+                    <!-- Документ -->
+                    <div id="documentViewer" class="media-viewer" style="display: none;">
+                        <div class="document-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadDocument">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <div class="document-info">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5 id="documentTitle"></h5>
+                            <p id="documentDescription" class="text-muted"></p>
+                            <div class="document-meta">
+                                <span id="documentSize" class="badge bg-secondary me-2"></span>
+                                <span id="documentType" class="badge bg-info"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.media-container {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-viewer {
+    width: 100%;
+    text-align: center;
+}
+
+.image-controls, .video-controls, .audio-controls, .document-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.modal-image.zoomed {
+    cursor: zoom-out;
+}
+
+.modal-video {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-audio {
+    width: 100%;
+    max-width: 500px;
+}
+
+.document-info {
+    padding: 2rem;
+    text-align: center;
+}
+
+.document-meta {
+    margin-top: 1rem;
+}
+
+.modal-xl {
+    max-width: 90%;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+    
+    .image-controls, .video-controls, .audio-controls, .document-controls {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+// Глобальные переменные для управления зумом
+let currentZoom = 1;
+const zoomStep = 0.2;
+const maxZoom = 3;
+const minZoom = 0.5;
+
+// Функция для открытия модального окна
+function openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize) {
+    const modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+    const modalTitle = document.getElementById('mediaModalLabel');
+    
+    // Скрываем все viewer'ы
+    document.querySelectorAll('.media-viewer').forEach(viewer => {
+        viewer.style.display = 'none';
+    });
+    
+    // Устанавливаем заголовок
+    modalTitle.textContent = fileName;
+    
+    // Показываем соответствующий viewer в зависимости от типа файла
+    if (fileType === 'image') {
+        const imageViewer = document.getElementById('imageViewer');
+        const modalImage = document.getElementById('modalImage');
+        
+        imageViewer.style.display = 'block';
+        modalImage.src = fileUrl;
+        modalImage.alt = fileName;
+        
+        // Сбрасываем зум
+        resetImageZoom();
+        
+        // Настраиваем кнопки для изображения
+        setupImageControls(fileUrl);
+        
+    } else if (fileType === 'video') {
+        const videoViewer = document.getElementById('videoViewer');
+        const modalVideo = document.getElementById('modalVideo');
+        
+        videoViewer.style.display = 'block';
+        modalVideo.src = fileUrl;
+        
+        // Настраиваем кнопки для видео
+        setupVideoControls(fileUrl);
+        
+    } else if (fileType === 'audio') {
+        const audioViewer = document.getElementById('audioViewer');
+        const modalAudio = document.getElementById('modalAudio');
+        
+        audioViewer.style.display = 'block';
+        modalAudio.src = fileUrl;
+        
+        // Настраиваем кнопки для аудио
+        setupAudioControls(fileUrl);
+        
+    } else {
+        // Для документов и других файлов
+        const documentViewer = document.getElementById('documentViewer');
+        const documentTitle = document.getElementById('documentTitle');
+        const documentDescription = document.getElementById('documentDescription');
+        const documentSize = document.getElementById('documentSize');
+        const documentType = document.getElementById('documentType');
+        
+        documentViewer.style.display = 'block';
+        documentTitle.textContent = fileName;
+        documentDescription.textContent = fileDescription || 'Описание отсутствует';
+        documentSize.textContent = fileSize || '';
+        documentType.textContent = fileType.toUpperCase();
+        
+        // Настраиваем кнопки для документа
+        setupDocumentControls(fileUrl);
+    }
+    
+    modal.show();
+}
+
+// Функции для управления изображением
+function setupImageControls(fileUrl) {
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const resetZoomBtn = document.getElementById('resetZoom');
+    const downloadBtn = document.getElementById('downloadImage');
+    const modalImage = document.getElementById('modalImage');
+    
+    zoomInBtn.onclick = () => zoomImage(zoomStep);
+    zoomOutBtn.onclick = () => zoomImage(-zoomStep);
+    resetZoomBtn.onclick = resetImageZoom;
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+    
+    // Двойной клик для сброса зума
+    modalImage.ondblclick = resetImageZoom;
+    
+    // Колесико мыши для зума
+    modalImage.onwheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+        zoomImage(delta);
+    };
+}
+
+function zoomImage(delta) {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+    
+    modalImage.style.transform = `scale(${currentZoom})`;
+    
+    if (currentZoom > 1) {
+        modalImage.classList.add('zoomed');
+    } else {
+        modalImage.classList.remove('zoomed');
+    }
+}
+
+function resetImageZoom() {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = 1;
+    modalImage.style.transform = 'scale(1)';
+    modalImage.classList.remove('zoomed');
+}
+
+// Функции для управления видео
+function setupVideoControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadVideo');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления аудио
+function setupAudioControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadAudio');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления документами
+function setupDocumentControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadDocument');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функция для скачивания файла
+function downloadFile(fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = '';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Обработчики для карточек файлов
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик клика на карточки файлов
+    document.querySelectorAll('.file-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Не открываем модальное окно, если кликнули на ссылку
+            if (e.target.closest('a')) {
+                return;
+            }
+            
+            const fileUrl = this.querySelector('[data-file-url]').dataset.fileUrl;
+            const fileType = this.querySelector('[data-file-type]').dataset.fileType;
+            const fileName = this.querySelector('.file-title').textContent.trim();
+            const fileDescription = this.querySelector('.file-description')?.textContent.trim() || '';
+            const fileSize = this.querySelector('.file-size')?.textContent.trim() || '';
+            
+            openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize);
+        });
+    });
+});
+</script> 
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Просмотр файла</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="media-container">
+                    <!-- Изображение -->
+                    <div id="imageViewer" class="media-viewer" style="display: none;">
+                        <div class="image-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomIn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomOut">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="resetZoom">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadImage">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="image-wrapper">
+                            <img id="modalImage" src="" alt="" class="modal-image">
+                        </div>
+                    </div>
+                    
+                    <!-- Видео -->
+                    <div id="videoViewer" class="media-viewer" style="display: none;">
+                        <div class="video-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadVideo">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <video id="modalVideo" controls class="modal-video">
+                            <source src="" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    
+                    <!-- Аудио -->
+                    <div id="audioViewer" class="media-viewer" style="display: none;">
+                        <div class="audio-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadAudio">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <audio id="modalAudio" controls class="modal-audio">
+                            <source src="" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио.
+                        </audio>
+                    </div>
+                    
+                    <!-- Документ -->
+                    <div id="documentViewer" class="media-viewer" style="display: none;">
+                        <div class="document-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadDocument">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <div class="document-info">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5 id="documentTitle"></h5>
+                            <p id="documentDescription" class="text-muted"></p>
+                            <div class="document-meta">
+                                <span id="documentSize" class="badge bg-secondary me-2"></span>
+                                <span id="documentType" class="badge bg-info"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.media-container {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-viewer {
+    width: 100%;
+    text-align: center;
+}
+
+.image-controls, .video-controls, .audio-controls, .document-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.modal-image.zoomed {
+    cursor: zoom-out;
+}
+
+.modal-video {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-audio {
+    width: 100%;
+    max-width: 500px;
+}
+
+.document-info {
+    padding: 2rem;
+    text-align: center;
+}
+
+.document-meta {
+    margin-top: 1rem;
+}
+
+.modal-xl {
+    max-width: 90%;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+    
+    .image-controls, .video-controls, .audio-controls, .document-controls {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+// Глобальные переменные для управления зумом
+let currentZoom = 1;
+const zoomStep = 0.2;
+const maxZoom = 3;
+const minZoom = 0.5;
+
+// Функция для открытия модального окна
+function openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize) {
+    const modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+    const modalTitle = document.getElementById('mediaModalLabel');
+    
+    // Скрываем все viewer'ы
+    document.querySelectorAll('.media-viewer').forEach(viewer => {
+        viewer.style.display = 'none';
+    });
+    
+    // Устанавливаем заголовок
+    modalTitle.textContent = fileName;
+    
+    // Показываем соответствующий viewer в зависимости от типа файла
+    if (fileType === 'image') {
+        const imageViewer = document.getElementById('imageViewer');
+        const modalImage = document.getElementById('modalImage');
+        
+        imageViewer.style.display = 'block';
+        modalImage.src = fileUrl;
+        modalImage.alt = fileName;
+        
+        // Сбрасываем зум
+        resetImageZoom();
+        
+        // Настраиваем кнопки для изображения
+        setupImageControls(fileUrl);
+        
+    } else if (fileType === 'video') {
+        const videoViewer = document.getElementById('videoViewer');
+        const modalVideo = document.getElementById('modalVideo');
+        
+        videoViewer.style.display = 'block';
+        modalVideo.src = fileUrl;
+        
+        // Настраиваем кнопки для видео
+        setupVideoControls(fileUrl);
+        
+    } else if (fileType === 'audio') {
+        const audioViewer = document.getElementById('audioViewer');
+        const modalAudio = document.getElementById('modalAudio');
+        
+        audioViewer.style.display = 'block';
+        modalAudio.src = fileUrl;
+        
+        // Настраиваем кнопки для аудио
+        setupAudioControls(fileUrl);
+        
+    } else {
+        // Для документов и других файлов
+        const documentViewer = document.getElementById('documentViewer');
+        const documentTitle = document.getElementById('documentTitle');
+        const documentDescription = document.getElementById('documentDescription');
+        const documentSize = document.getElementById('documentSize');
+        const documentType = document.getElementById('documentType');
+        
+        documentViewer.style.display = 'block';
+        documentTitle.textContent = fileName;
+        documentDescription.textContent = fileDescription || 'Описание отсутствует';
+        documentSize.textContent = fileSize || '';
+        documentType.textContent = fileType.toUpperCase();
+        
+        // Настраиваем кнопки для документа
+        setupDocumentControls(fileUrl);
+    }
+    
+    modal.show();
+}
+
+// Функции для управления изображением
+function setupImageControls(fileUrl) {
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const resetZoomBtn = document.getElementById('resetZoom');
+    const downloadBtn = document.getElementById('downloadImage');
+    const modalImage = document.getElementById('modalImage');
+    
+    zoomInBtn.onclick = () => zoomImage(zoomStep);
+    zoomOutBtn.onclick = () => zoomImage(-zoomStep);
+    resetZoomBtn.onclick = resetImageZoom;
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+    
+    // Двойной клик для сброса зума
+    modalImage.ondblclick = resetImageZoom;
+    
+    // Колесико мыши для зума
+    modalImage.onwheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+        zoomImage(delta);
+    };
+}
+
+function zoomImage(delta) {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+    
+    modalImage.style.transform = `scale(${currentZoom})`;
+    
+    if (currentZoom > 1) {
+        modalImage.classList.add('zoomed');
+    } else {
+        modalImage.classList.remove('zoomed');
+    }
+}
+
+function resetImageZoom() {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = 1;
+    modalImage.style.transform = 'scale(1)';
+    modalImage.classList.remove('zoomed');
+}
+
+// Функции для управления видео
+function setupVideoControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadVideo');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления аудио
+function setupAudioControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadAudio');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления документами
+function setupDocumentControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadDocument');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функция для скачивания файла
+function downloadFile(fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = '';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Обработчики для карточек файлов
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик клика на карточки файлов
+    document.querySelectorAll('.file-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Не открываем модальное окно, если кликнули на ссылку
+            if (e.target.closest('a')) {
+                return;
+            }
+            
+            const fileUrl = this.querySelector('[data-file-url]').dataset.fileUrl;
+            const fileType = this.querySelector('[data-file-type]').dataset.fileType;
+            const fileName = this.querySelector('.file-title').textContent.trim();
+            const fileDescription = this.querySelector('.file-description')?.textContent.trim() || '';
+            const fileSize = this.querySelector('.file-size')?.textContent.trim() || '';
+            
+            openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize);
+        });
+    });
+});
+</script> 
+ 
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Просмотр файла</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="media-container">
+                    <!-- Изображение -->
+                    <div id="imageViewer" class="media-viewer" style="display: none;">
+                        <div class="image-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomIn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomOut">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="resetZoom">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadImage">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="image-wrapper">
+                            <img id="modalImage" src="" alt="" class="modal-image">
+                        </div>
+                    </div>
+                    
+                    <!-- Видео -->
+                    <div id="videoViewer" class="media-viewer" style="display: none;">
+                        <div class="video-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadVideo">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <video id="modalVideo" controls class="modal-video">
+                            <source src="" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    
+                    <!-- Аудио -->
+                    <div id="audioViewer" class="media-viewer" style="display: none;">
+                        <div class="audio-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadAudio">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <audio id="modalAudio" controls class="modal-audio">
+                            <source src="" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио.
+                        </audio>
+                    </div>
+                    
+                    <!-- Документ -->
+                    <div id="documentViewer" class="media-viewer" style="display: none;">
+                        <div class="document-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadDocument">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <div class="document-info">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5 id="documentTitle"></h5>
+                            <p id="documentDescription" class="text-muted"></p>
+                            <div class="document-meta">
+                                <span id="documentSize" class="badge bg-secondary me-2"></span>
+                                <span id="documentType" class="badge bg-info"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.media-container {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-viewer {
+    width: 100%;
+    text-align: center;
+}
+
+.image-controls, .video-controls, .audio-controls, .document-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.modal-image.zoomed {
+    cursor: zoom-out;
+}
+
+.modal-video {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-audio {
+    width: 100%;
+    max-width: 500px;
+}
+
+.document-info {
+    padding: 2rem;
+    text-align: center;
+}
+
+.document-meta {
+    margin-top: 1rem;
+}
+
+.modal-xl {
+    max-width: 90%;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+    
+    .image-controls, .video-controls, .audio-controls, .document-controls {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+// Глобальные переменные для управления зумом
+let currentZoom = 1;
+const zoomStep = 0.2;
+const maxZoom = 3;
+const minZoom = 0.5;
+
+// Функция для открытия модального окна
+function openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize) {
+    const modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+    const modalTitle = document.getElementById('mediaModalLabel');
+    
+    // Скрываем все viewer'ы
+    document.querySelectorAll('.media-viewer').forEach(viewer => {
+        viewer.style.display = 'none';
+    });
+    
+    // Устанавливаем заголовок
+    modalTitle.textContent = fileName;
+    
+    // Показываем соответствующий viewer в зависимости от типа файла
+    if (fileType === 'image') {
+        const imageViewer = document.getElementById('imageViewer');
+        const modalImage = document.getElementById('modalImage');
+        
+        imageViewer.style.display = 'block';
+        modalImage.src = fileUrl;
+        modalImage.alt = fileName;
+        
+        // Сбрасываем зум
+        resetImageZoom();
+        
+        // Настраиваем кнопки для изображения
+        setupImageControls(fileUrl);
+        
+    } else if (fileType === 'video') {
+        const videoViewer = document.getElementById('videoViewer');
+        const modalVideo = document.getElementById('modalVideo');
+        
+        videoViewer.style.display = 'block';
+        modalVideo.src = fileUrl;
+        
+        // Настраиваем кнопки для видео
+        setupVideoControls(fileUrl);
+        
+    } else if (fileType === 'audio') {
+        const audioViewer = document.getElementById('audioViewer');
+        const modalAudio = document.getElementById('modalAudio');
+        
+        audioViewer.style.display = 'block';
+        modalAudio.src = fileUrl;
+        
+        // Настраиваем кнопки для аудио
+        setupAudioControls(fileUrl);
+        
+    } else {
+        // Для документов и других файлов
+        const documentViewer = document.getElementById('documentViewer');
+        const documentTitle = document.getElementById('documentTitle');
+        const documentDescription = document.getElementById('documentDescription');
+        const documentSize = document.getElementById('documentSize');
+        const documentType = document.getElementById('documentType');
+        
+        documentViewer.style.display = 'block';
+        documentTitle.textContent = fileName;
+        documentDescription.textContent = fileDescription || 'Описание отсутствует';
+        documentSize.textContent = fileSize || '';
+        documentType.textContent = fileType.toUpperCase();
+        
+        // Настраиваем кнопки для документа
+        setupDocumentControls(fileUrl);
+    }
+    
+    modal.show();
+}
+
+// Функции для управления изображением
+function setupImageControls(fileUrl) {
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const resetZoomBtn = document.getElementById('resetZoom');
+    const downloadBtn = document.getElementById('downloadImage');
+    const modalImage = document.getElementById('modalImage');
+    
+    zoomInBtn.onclick = () => zoomImage(zoomStep);
+    zoomOutBtn.onclick = () => zoomImage(-zoomStep);
+    resetZoomBtn.onclick = resetImageZoom;
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+    
+    // Двойной клик для сброса зума
+    modalImage.ondblclick = resetImageZoom;
+    
+    // Колесико мыши для зума
+    modalImage.onwheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+        zoomImage(delta);
+    };
+}
+
+function zoomImage(delta) {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+    
+    modalImage.style.transform = `scale(${currentZoom})`;
+    
+    if (currentZoom > 1) {
+        modalImage.classList.add('zoomed');
+    } else {
+        modalImage.classList.remove('zoomed');
+    }
+}
+
+function resetImageZoom() {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = 1;
+    modalImage.style.transform = 'scale(1)';
+    modalImage.classList.remove('zoomed');
+}
+
+// Функции для управления видео
+function setupVideoControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadVideo');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления аудио
+function setupAudioControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadAudio');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления документами
+function setupDocumentControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadDocument');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функция для скачивания файла
+function downloadFile(fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = '';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Обработчики для карточек файлов
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик клика на карточки файлов
+    document.querySelectorAll('.file-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Не открываем модальное окно, если кликнули на ссылку
+            if (e.target.closest('a')) {
+                return;
+            }
+            
+            const fileUrl = this.querySelector('[data-file-url]').dataset.fileUrl;
+            const fileType = this.querySelector('[data-file-type]').dataset.fileType;
+            const fileName = this.querySelector('.file-title').textContent.trim();
+            const fileDescription = this.querySelector('.file-description')?.textContent.trim() || '';
+            const fileSize = this.querySelector('.file-size')?.textContent.trim() || '';
+            
+            openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize);
+        });
+    });
+});
+</script> 
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Просмотр файла</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="media-container">
+                    <!-- Изображение -->
+                    <div id="imageViewer" class="media-viewer" style="display: none;">
+                        <div class="image-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomIn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="zoomOut">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="resetZoom">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadImage">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="image-wrapper">
+                            <img id="modalImage" src="" alt="" class="modal-image">
+                        </div>
+                    </div>
+                    
+                    <!-- Видео -->
+                    <div id="videoViewer" class="media-viewer" style="display: none;">
+                        <div class="video-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadVideo">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <video id="modalVideo" controls class="modal-video">
+                            <source src="" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    </div>
+                    
+                    <!-- Аудио -->
+                    <div id="audioViewer" class="media-viewer" style="display: none;">
+                        <div class="audio-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadAudio">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <audio id="modalAudio" controls class="modal-audio">
+                            <source src="" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио.
+                        </audio>
+                    </div>
+                    
+                    <!-- Документ -->
+                    <div id="documentViewer" class="media-viewer" style="display: none;">
+                        <div class="document-controls">
+                            <button class="btn btn-sm btn-outline-secondary" id="downloadDocument">
+                                <i class="fas fa-download"></i> Скачать
+                            </button>
+                        </div>
+                        <div class="document-info">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5 id="documentTitle"></h5>
+                            <p id="documentDescription" class="text-muted"></p>
+                            <div class="document-meta">
+                                <span id="documentSize" class="badge bg-secondary me-2"></span>
+                                <span id="documentType" class="badge bg-info"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.media-container {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-viewer {
+    width: 100%;
+    text-align: center;
+}
+
+.image-controls, .video-controls, .audio-controls, .document-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.modal-image.zoomed {
+    cursor: zoom-out;
+}
+
+.modal-video {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-audio {
+    width: 100%;
+    max-width: 500px;
+}
+
+.document-info {
+    padding: 2rem;
+    text-align: center;
+}
+
+.document-meta {
+    margin-top: 1rem;
+}
+
+.modal-xl {
+    max-width: 90%;
+}
+
+@media (max-width: 768px) {
+    .modal-xl {
+        max-width: 95%;
+    }
+    
+    .image-controls, .video-controls, .audio-controls, .document-controls {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+// Глобальные переменные для управления зумом
+let currentZoom = 1;
+const zoomStep = 0.2;
+const maxZoom = 3;
+const minZoom = 0.5;
+
+// Функция для открытия модального окна
+function openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize) {
+    const modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+    const modalTitle = document.getElementById('mediaModalLabel');
+    
+    // Скрываем все viewer'ы
+    document.querySelectorAll('.media-viewer').forEach(viewer => {
+        viewer.style.display = 'none';
+    });
+    
+    // Устанавливаем заголовок
+    modalTitle.textContent = fileName;
+    
+    // Показываем соответствующий viewer в зависимости от типа файла
+    if (fileType === 'image') {
+        const imageViewer = document.getElementById('imageViewer');
+        const modalImage = document.getElementById('modalImage');
+        
+        imageViewer.style.display = 'block';
+        modalImage.src = fileUrl;
+        modalImage.alt = fileName;
+        
+        // Сбрасываем зум
+        resetImageZoom();
+        
+        // Настраиваем кнопки для изображения
+        setupImageControls(fileUrl);
+        
+    } else if (fileType === 'video') {
+        const videoViewer = document.getElementById('videoViewer');
+        const modalVideo = document.getElementById('modalVideo');
+        
+        videoViewer.style.display = 'block';
+        modalVideo.src = fileUrl;
+        
+        // Настраиваем кнопки для видео
+        setupVideoControls(fileUrl);
+        
+    } else if (fileType === 'audio') {
+        const audioViewer = document.getElementById('audioViewer');
+        const modalAudio = document.getElementById('modalAudio');
+        
+        audioViewer.style.display = 'block';
+        modalAudio.src = fileUrl;
+        
+        // Настраиваем кнопки для аудио
+        setupAudioControls(fileUrl);
+        
+    } else {
+        // Для документов и других файлов
+        const documentViewer = document.getElementById('documentViewer');
+        const documentTitle = document.getElementById('documentTitle');
+        const documentDescription = document.getElementById('documentDescription');
+        const documentSize = document.getElementById('documentSize');
+        const documentType = document.getElementById('documentType');
+        
+        documentViewer.style.display = 'block';
+        documentTitle.textContent = fileName;
+        documentDescription.textContent = fileDescription || 'Описание отсутствует';
+        documentSize.textContent = fileSize || '';
+        documentType.textContent = fileType.toUpperCase();
+        
+        // Настраиваем кнопки для документа
+        setupDocumentControls(fileUrl);
+    }
+    
+    modal.show();
+}
+
+// Функции для управления изображением
+function setupImageControls(fileUrl) {
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const resetZoomBtn = document.getElementById('resetZoom');
+    const downloadBtn = document.getElementById('downloadImage');
+    const modalImage = document.getElementById('modalImage');
+    
+    zoomInBtn.onclick = () => zoomImage(zoomStep);
+    zoomOutBtn.onclick = () => zoomImage(-zoomStep);
+    resetZoomBtn.onclick = resetImageZoom;
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+    
+    // Двойной клик для сброса зума
+    modalImage.ondblclick = resetImageZoom;
+    
+    // Колесико мыши для зума
+    modalImage.onwheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+        zoomImage(delta);
+    };
+}
+
+function zoomImage(delta) {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+    
+    modalImage.style.transform = `scale(${currentZoom})`;
+    
+    if (currentZoom > 1) {
+        modalImage.classList.add('zoomed');
+    } else {
+        modalImage.classList.remove('zoomed');
+    }
+}
+
+function resetImageZoom() {
+    const modalImage = document.getElementById('modalImage');
+    currentZoom = 1;
+    modalImage.style.transform = 'scale(1)';
+    modalImage.classList.remove('zoomed');
+}
+
+// Функции для управления видео
+function setupVideoControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadVideo');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления аудио
+function setupAudioControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadAudio');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функции для управления документами
+function setupDocumentControls(fileUrl) {
+    const downloadBtn = document.getElementById('downloadDocument');
+    downloadBtn.onclick = () => downloadFile(fileUrl);
+}
+
+// Функция для скачивания файла
+function downloadFile(fileUrl) {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = '';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Обработчики для карточек файлов
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик клика на карточки файлов
+    document.querySelectorAll('.file-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Не открываем модальное окно, если кликнули на ссылку
+            if (e.target.closest('a')) {
+                return;
+            }
+            
+            const fileUrl = this.querySelector('[data-file-url]').dataset.fileUrl;
+            const fileType = this.querySelector('[data-file-type]').dataset.fileType;
+            const fileName = this.querySelector('.file-title').textContent.trim();
+            const fileDescription = this.querySelector('.file-description')?.textContent.trim() || '';
+            const fileSize = this.querySelector('.file-size')?.textContent.trim() || '';
+            
+            openMediaModal(fileUrl, fileType, fileName, fileDescription, fileSize);
+        });
+    });
+});
+</script> 
+ 

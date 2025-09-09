@@ -1,0 +1,2348 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}Редактирование профиля - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i>
+                        Редактирование профиля
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-avatar-section">
+                                    <div class="avatar-preview">
+                                        {% if user.userprofile.avatar %}
+                                            <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
+                                        {% else %}
+                                            <img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt="{{ user.username }}" class="avatar-img">
+                                        {% endif %}
+                                    </div>
+                                    <div class="avatar-upload mt-3">
+                                        <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera"></i> Изменить фото
+                                        </label>
+                                        {{ form.avatar }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Имя
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.first_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Фамилия
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.last_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                                        <i class="fas fa-info-circle"></i> О себе
+                                    </label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bio.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.website.id_for_label }}" class="form-label">
+                                        <i class="fas fa-globe"></i> Веб-сайт
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.website.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i> Местоположение
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.location.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.github_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </label>
+                                    {{ form.github_url }}
+                                    {% if form.github_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.github_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.linkedin_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </label>
+                                    {{ form.linkedin_url }}
+                                    {% if form.linkedin_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.linkedin_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'Blog:user_profile' user.username %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Назад к профилю
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Сохранить изменения
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 20px;
+}
+
+.card-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #667eea;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload input[type="file"] {
+    display: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.text-danger small {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.profile-avatar-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %} 
+{% load static %}
+
+{% block title %}Редактирование профиля - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i>
+                        Редактирование профиля
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-avatar-section">
+                                    <div class="avatar-preview">
+                                        {% if user.userprofile.avatar %}
+                                            <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
+                                        {% else %}
+                                            <img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt="{{ user.username }}" class="avatar-img">
+                                        {% endif %}
+                                    </div>
+                                    <div class="avatar-upload mt-3">
+                                        <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera"></i> Изменить фото
+                                        </label>
+                                        {{ form.avatar }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Имя
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.first_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Фамилия
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.last_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                                        <i class="fas fa-info-circle"></i> О себе
+                                    </label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bio.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.website.id_for_label }}" class="form-label">
+                                        <i class="fas fa-globe"></i> Веб-сайт
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.website.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i> Местоположение
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.location.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.github_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </label>
+                                    {{ form.github_url }}
+                                    {% if form.github_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.github_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.linkedin_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </label>
+                                    {{ form.linkedin_url }}
+                                    {% if form.linkedin_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.linkedin_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'Blog:user_profile' user.username %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Назад к профилю
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Сохранить изменения
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 20px;
+}
+
+.card-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #667eea;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload input[type="file"] {
+    display: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.text-danger small {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.profile-avatar-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %} 
+ 
+{% load static %}
+
+{% block title %}Редактирование профиля - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i>
+                        Редактирование профиля
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-avatar-section">
+                                    <div class="avatar-preview">
+                                        {% if user.userprofile.avatar %}
+                                            <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
+                                        {% else %}
+                                            <img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt="{{ user.username }}" class="avatar-img">
+                                        {% endif %}
+                                    </div>
+                                    <div class="avatar-upload mt-3">
+                                        <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera"></i> Изменить фото
+                                        </label>
+                                        {{ form.avatar }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Имя
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.first_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Фамилия
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.last_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                                        <i class="fas fa-info-circle"></i> О себе
+                                    </label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bio.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.website.id_for_label }}" class="form-label">
+                                        <i class="fas fa-globe"></i> Веб-сайт
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.website.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i> Местоположение
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.location.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.github_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </label>
+                                    {{ form.github_url }}
+                                    {% if form.github_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.github_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.linkedin_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </label>
+                                    {{ form.linkedin_url }}
+                                    {% if form.linkedin_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.linkedin_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'Blog:user_profile' user.username %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Назад к профилю
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Сохранить изменения
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 20px;
+}
+
+.card-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #667eea;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload input[type="file"] {
+    display: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.text-danger small {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.profile-avatar-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %} 
+{% load static %}
+
+{% block title %}Редактирование профиля - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i>
+                        Редактирование профиля
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-avatar-section">
+                                    <div class="avatar-preview">
+                                        {% if user.userprofile.avatar %}
+                                            <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
+                                        {% else %}
+                                            <img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt="{{ user.username }}" class="avatar-img">
+                                        {% endif %}
+                                    </div>
+                                    <div class="avatar-upload mt-3">
+                                        <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera"></i> Изменить фото
+                                        </label>
+                                        {{ form.avatar }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Имя
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.first_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Фамилия
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.last_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                                        <i class="fas fa-info-circle"></i> О себе
+                                    </label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bio.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.website.id_for_label }}" class="form-label">
+                                        <i class="fas fa-globe"></i> Веб-сайт
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.website.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i> Местоположение
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.location.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.github_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </label>
+                                    {{ form.github_url }}
+                                    {% if form.github_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.github_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.linkedin_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </label>
+                                    {{ form.linkedin_url }}
+                                    {% if form.linkedin_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.linkedin_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'Blog:user_profile' user.username %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Назад к профилю
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Сохранить изменения
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 20px;
+}
+
+.card-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #667eea;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload input[type="file"] {
+    display: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.text-danger small {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.profile-avatar-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %} 
+{% load static %}
+
+{% block title %}Редактирование профиля - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i>
+                        Редактирование профиля
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-avatar-section">
+                                    <div class="avatar-preview">
+                                        {% if user.userprofile.avatar %}
+                                            <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
+                                        {% else %}
+                                            <img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt="{{ user.username }}" class="avatar-img">
+                                        {% endif %}
+                                    </div>
+                                    <div class="avatar-upload mt-3">
+                                        <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera"></i> Изменить фото
+                                        </label>
+                                        {{ form.avatar }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Имя
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.first_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Фамилия
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.last_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                                        <i class="fas fa-info-circle"></i> О себе
+                                    </label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bio.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.website.id_for_label }}" class="form-label">
+                                        <i class="fas fa-globe"></i> Веб-сайт
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.website.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i> Местоположение
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.location.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.github_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </label>
+                                    {{ form.github_url }}
+                                    {% if form.github_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.github_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.linkedin_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </label>
+                                    {{ form.linkedin_url }}
+                                    {% if form.linkedin_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.linkedin_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'Blog:user_profile' user.username %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Назад к профилю
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Сохранить изменения
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 20px;
+}
+
+.card-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #667eea;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload input[type="file"] {
+    display: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.text-danger small {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.profile-avatar-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %} 
+{% load static %}
+
+{% block title %}Редактирование профиля - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i>
+                        Редактирование профиля
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-avatar-section">
+                                    <div class="avatar-preview">
+                                        {% if user.userprofile.avatar %}
+                                            <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
+                                        {% else %}
+                                            <img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt="{{ user.username }}" class="avatar-img">
+                                        {% endif %}
+                                    </div>
+                                    <div class="avatar-upload mt-3">
+                                        <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera"></i> Изменить фото
+                                        </label>
+                                        {{ form.avatar }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Имя
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.first_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Фамилия
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.last_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                                        <i class="fas fa-info-circle"></i> О себе
+                                    </label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bio.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.website.id_for_label }}" class="form-label">
+                                        <i class="fas fa-globe"></i> Веб-сайт
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.website.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i> Местоположение
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.location.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.github_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </label>
+                                    {{ form.github_url }}
+                                    {% if form.github_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.github_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.linkedin_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </label>
+                                    {{ form.linkedin_url }}
+                                    {% if form.linkedin_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.linkedin_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'Blog:user_profile' user.username %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Назад к профилю
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Сохранить изменения
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 20px;
+}
+
+.card-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #667eea;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload input[type="file"] {
+    display: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.text-danger small {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.profile-avatar-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %} 
+ 
+{% load static %}
+
+{% block title %}Редактирование профиля - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i>
+                        Редактирование профиля
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-avatar-section">
+                                    <div class="avatar-preview">
+                                        {% if user.userprofile.avatar %}
+                                            <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
+                                        {% else %}
+                                            <img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt="{{ user.username }}" class="avatar-img">
+                                        {% endif %}
+                                    </div>
+                                    <div class="avatar-upload mt-3">
+                                        <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera"></i> Изменить фото
+                                        </label>
+                                        {{ form.avatar }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Имя
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.first_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Фамилия
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.last_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                                        <i class="fas fa-info-circle"></i> О себе
+                                    </label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bio.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.website.id_for_label }}" class="form-label">
+                                        <i class="fas fa-globe"></i> Веб-сайт
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.website.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i> Местоположение
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.location.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.github_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </label>
+                                    {{ form.github_url }}
+                                    {% if form.github_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.github_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.linkedin_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </label>
+                                    {{ form.linkedin_url }}
+                                    {% if form.linkedin_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.linkedin_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'Blog:user_profile' user.username %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Назад к профилю
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Сохранить изменения
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 20px;
+}
+
+.card-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #667eea;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload input[type="file"] {
+    display: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.text-danger small {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.profile-avatar-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %} 
+{% load static %}
+
+{% block title %}Редактирование профиля - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i>
+                        Редактирование профиля
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="profile-avatar-section">
+                                    <div class="avatar-preview">
+                                        {% if user.userprofile.avatar %}
+                                            <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
+                                        {% else %}
+                                            <img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt="{{ user.username }}" class="avatar-img">
+                                        {% endif %}
+                                    </div>
+                                    <div class="avatar-upload mt-3">
+                                        <label for="{{ form.avatar.id_for_label }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera"></i> Изменить фото
+                                        </label>
+                                        {{ form.avatar }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Имя
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.first_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-user"></i> Фамилия
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.last_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                                        <i class="fas fa-info-circle"></i> О себе
+                                    </label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.bio.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.website.id_for_label }}" class="form-label">
+                                        <i class="fas fa-globe"></i> Веб-сайт
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.website.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i> Местоположение
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.location.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.github_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </label>
+                                    {{ form.github_url }}
+                                    {% if form.github_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.github_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.linkedin_url.id_for_label }}" class="form-label">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </label>
+                                    {{ form.linkedin_url }}
+                                    {% if form.linkedin_url.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.linkedin_url.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'Blog:user_profile' user.username %}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Назад к профилю
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Сохранить изменения
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 20px;
+}
+
+.card-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #667eea;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload input[type="file"] {
+    display: none;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.text-danger small {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.profile-avatar-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %} 
+ 

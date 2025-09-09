@@ -1,0 +1,467 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}{{ file.title }} - Архив NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block extra_css %}
+<style>
+.file-detail-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.file-preview-section {
+    margin-bottom: 3rem;
+}
+
+.file-preview-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.file-preview-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    background: #f8f9fa;
+}
+
+.file-preview-video {
+    width: 100%;
+    max-height: 500px;
+    background: #000;
+}
+
+.file-preview-audio {
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-preview-icon {
+    width: 100%;
+    height: 300px;
+    background: linear-gradient(45deg, #28a745, #20c997);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 5rem;
+}
+
+.file-info-section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.file-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    min-width: 120px;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.file-meta {
+    margin-bottom: 2rem;
+}
+
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.meta-item:last-child {
+    border-bottom: none;
+}
+
+.meta-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.meta-value {
+    color: #6c757d;
+}
+
+.file-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.file-actions .btn {
+    flex: 1;
+    min-width: 150px;
+}
+
+.comments-section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 2rem;
+}
+
+.comment-item {
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem 0;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: #495057;
+}
+
+.comment-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.comment-content {
+    color: #495057;
+    line-height: 1.6;
+}
+
+.related-files {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 2rem;
+}
+
+.related-file-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.related-file-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.related-file-title {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.related-file-meta {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.breadcrumb-nav {
+    margin-bottom: 2rem;
+}
+
+.breadcrumb-nav .breadcrumb {
+    background: transparent;
+    padding: 0;
+}
+
+.breadcrumb-nav .breadcrumb-item a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.breadcrumb-nav .breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Навигационные хлебные крошки -->
+<nav aria-label="breadcrumb" class="breadcrumb-nav">
+    <div class="container">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'Home:home' %}">🏠 Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'Archive:index' %}">📚 Архив</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ file.title }}</li>
+        </ol>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Заголовок файла -->
+    <div class="file-detail-header">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="mb-3">{{ file.title }}</h1>
+                {% if file.description %}
+                    <p class="mb-0 opacity-75">{{ file.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Основная информация -->
+        <div class="col-lg-8">
+            <!-- Превью файла -->
+            <div class="file-preview-section">
+                <div class="file-preview-container">
+                    {% if file.thumbnail %}
+                        <img src="{{ file.thumbnail.url }}" alt="{{ file.title }}" class="file-preview-image">
+                    {% elif file.file_type == 'image' and file.file %}
+                        <img src="{{ file.file.url }}" alt="{{ file.title }}" class="file-preview-image">
+                    {% elif file.file_type == 'video' and file.file %}
+                        <video controls class="file-preview-video">
+                            <source src="{{ file.file.url }}" type="video/mp4">
+                            <source src="{{ file.file.url }}" type="video/webm">
+                            <source src="{{ file.file.url }}" type="video/ogg">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    {% elif file.file_type == 'audio' and file.file %}
+                        <div class="file-preview-audio">
+                            <audio controls style="width: 100%;">
+                                <source src="{{ file.file.url }}" type="audio/mpeg">
+                                <source src="{{ file.file.url }}" type="audio/ogg">
+                                <source src="{{ file.file.url }}" type="audio/wav">
+                                Ваш браузер не поддерживает аудио.
+                            </audio>
+                        </div>
+                    {% else %}
+                        <div class="file-preview-icon">
+                            {% if file.file_type == 'audio' %}
+                                <i class="fas fa-music"></i>
+                            {% elif file.file_type == 'document' %}
+                                <i class="fas fa-file-alt"></i>
+                            {% elif file.file_type == 'archive' %}
+                                <i class="fas fa-archive"></i>
+                            {% else %}
+                                <i class="fas fa-file"></i>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Информация о файле -->
+            <div class="file-info-section">
+                <h3 class="mb-4">📋 Информация о файле</h3>
+                
+                <!-- Статистика -->
+                <div class="file-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ file.downloads_count }}</div>
+                        <div class="stat-label">Скачиваний</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ file.views_count }}</div>
+                        <div class="stat-label">Просмотров</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ file.likes_count }}</div>
+                        <div class="stat-label">Лайков</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ file.file_size }}</div>
+                        <div class="stat-label">Размер</div>
+                    </div>
+                </div>
+
+                <!-- Метаданные -->
+                <div class="file-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Тип файла:</span>
+                        <span class="meta-value">{{ file.get_file_type_display }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Расширение:</span>
+                        <span class="meta-value">{{ file.file_extension|upper }}</span>
+                    </div>
+                    {% if file.category %}
+                    <div class="meta-item">
+                        <span class="meta-label">Категория:</span>
+                        <span class="meta-value">
+                            <span class="badge" style="background-color: {{ file.category.color }}">
+                                {{ file.category.name }}
+                            </span>
+                        </span>
+                    </div>
+                    {% endif %}
+                    <div class="meta-item">
+                        <span class="meta-label">Загрузил:</span>
+                        <span class="meta-value">{{ file.uploaded_by.username }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Дата загрузки:</span>
+                        <span class="meta-value">{{ file.uploaded_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Статус:</span>
+                        <span class="meta-value">
+                            {% if file.is_public %}
+                                <span class="badge bg-success">✅ Публичный</span>
+                            {% else %}
+                                <span class="badge bg-warning">⏳ На модерации</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Действия -->
+                <div class="file-actions">
+                    {% if file.is_public and file.file %}
+                        <a href="{% url 'Archive:file_download' file.pk %}" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Скачать файл
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'Archive:index' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Вернуться в архив
+                    </a>
+                    {% if user.is_authenticated %}
+                        <button class="btn btn-outline-danger" onclick="likeFile({{ file.pk }})">
+                            <i class="fas fa-heart me-2"></i>Лайк
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Комментарии -->
+            {% if file.allow_comments %}
+            <div class="comments-section">
+                <h3 class="mb-4">💬 Комментарии</h3>
+                
+                {% if file.comments.all %}
+                    {% for comment in file.comments.all %}
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-author">{{ comment.author.username }}</span>
+                            <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        <div class="comment-content">
+                            {{ comment.content }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Пока нет комментариев. Будьте первым!</p>
+                {% endif %}
+                
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'Archive:add_comment' file.pk %}" class="mt-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="3" placeholder="Написать комментарий..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Отправить комментарий</button>
+                    </form>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Для добавления комментария необходимо <a href="{% url 'Blog:login' %}">войти в систему</a>.
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 20px;">
+                <!-- Похожие файлы -->
+                {% if file.category %}
+                <div class="related-files">
+                    <h4 class="mb-3">📁 Похожие файлы</h4>
+                    
+                    {% for related_file in file.category.files.all|slice:":5" %}
+                        {% if related_file.pk != file.pk and related_file.is_public %}
+                        <div class="related-file-card">
+                            <div class="related-file-title">
+                                <a href="{% url 'Archive:file_detail' related_file.pk %}" class="text-decoration-none">
+                                    {{ related_file.title }}
+                                </a>
+                            </div>
+                            <div class="related-file-meta">
+                                <small class="text-muted">
+                                    {{ related_file.file_size }} • {{ related_file.uploaded_at|date:"d.m.Y" }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Информация -->
+                <div class="card mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">ℹ️ Информация</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Этот файл был загружен в архив и доступен для скачивания.
+                        </p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                Все файлы проверены и безопасны для использования.
+                            </small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function likeFile(fileId) {
+    // Здесь можно добавить AJAX запрос для лайка файла
+    alert('Функция лайка будет добавлена позже');
+}
+</script>
+{% endblock %}

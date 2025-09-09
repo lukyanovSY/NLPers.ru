@@ -1,0 +1,184 @@
+{% load static %}
+<!doctype html>
+<html class="no-js" lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}{{ site_name }}{% endblock %}</title>
+    <meta name="description" content="{% block description %}{{ site_description }}{% endblock %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Favicon -->
+    {% if site_settings.favicon %}
+    <link rel="shortcut icon" type="image/x-icon" href="{{ site_settings.favicon.url }}">
+    {% else %}
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'nlp/img/favicon.png' %}">
+    {% endif %}
+
+    <!-- CSS here -->
+    <link rel="stylesheet" href="{% static 'nlp/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/animate.min.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/uicons-solid-rounded.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/jquery.mCustomScrollbar.min.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/slick.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/default.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'nlp/css/responsive.css' %}">
+    
+    <!-- Дополнительные CSS -->
+    {% block extra_css %}{% endblock %}
+
+    <!-- Аналитика -->
+    {% if site_settings.analytics_code %}
+    {{ site_settings.analytics_code|safe }}
+    {% endif %}
+
+    <style>
+        /* Динамические стили на основе настроек */
+        .page-background {
+            {% if site_settings.background_image %}
+            background: linear-gradient(
+                rgba(0, 0, 0, {{ site_settings.background_overlay_opacity }}), 
+                rgba(0, 0, 0, {{ site_settings.background_overlay_opacity }})
+            ), url('{{ site_settings.background_image.url }}');
+            {% else %}
+            background: linear-gradient(
+                rgba(0, 0, 0, 0.7), 
+                rgba(0, 0, 0, 0.7)
+            ), url('{% static "nlp/img/bg/hero_bg.jpg" %}'), 
+            linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            {% endif %}
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        .menu-area {
+            background-color: {{ site_settings.header_background_color|default:'#1a1a1a' }} !important;
+            position: relative;
+            z-index: 999;
+        }
+        
+        .menu-wrap, .menu-nav {
+            display: flex !important;
+            align-items: center;
+        }
+        
+        .logo, .header-form, .navbar-wrap {
+            display: block !important;
+        }
+        
+        .header-form {
+            margin: 0 20px;
+        }
+        
+        .content-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin: 20px;
+            margin-top: 100px; /* Отступ от меню */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: {{ site_settings.header_background_color|default:'#1a1a1a' }};
+        }
+        
+        /* Стили для режима обслуживания */
+        {% if maintenance_mode %}
+        .maintenance-banner {
+            background: #ff4444;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            font-weight: bold;
+        }
+        
+        body {
+            padding-top: 50px;
+        }
+        {% endif %}
+    </style>
+</head>
+
+<body>
+
+    
+    {% block meny %}
+    {% include "meny/meny.verh.html" %}
+    {% endblock meny %}
+    
+    
+    <!-- ЗНАЧОК СКРОЛЛА -->
+    <button class="scroll-top scroll-to-target" data-target="html">
+        <i class="fas fa-angle-up"></i>
+    </button>
+    <!-- ЗНАЧОК СКРОЛЛА -->
+
+    <!-- СИДЕБАР СЛЕВА -->
+    {% block sidebar %}
+    {% include "meny/sidebar.html" %}
+    {% endblock sidebar %}
+    <!-- СИДЕБАР СЛЕВА -->
+
+    <!-- МЕНЮ СПРАВА всплывает -->
+    {% block meny_sprava %}
+    {% include "meny/meny.sprava.html" %}
+    {% endblock meny_sprava %}
+    <!-- МЕНЮ СПРАВА всплывает -->
+
+
+    {% block content %}
+    <!-- Контент страницы -->
+    {% endblock %}
+   
+    <!-- ФУТЕР (если нужен) -->
+    {% block footer %}
+    {% include "meny/foser.html" %}
+    {% endblock %}
+    <!-- ФУТЕР -->
+
+    <!-- JS here -->
+    <script src="{% static 'nlp/js/vendor/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'nlp/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'nlp/js/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'nlp/js/imagesloaded.pkgd.min.js' %}"></script>
+    <script src="{% static 'nlp/js/jquery.magnific-popup.min.js' %}"></script>
+    <script src="{% static 'nlp/js/jquery.mCustomScrollbar.concat.min.js' %}"></script>
+    <script src="{% static 'nlp/js/slick.min.js' %}"></script>
+    <script src="{% static 'nlp/js/wow.min.js' %}"></script>
+    <script src="{% static 'nlp/js/plugins.js' %}"></script>
+    <script src="{% static 'nlp/js/main.js' %}"></script>
+
+    <!-- Дополнительный JS -->
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        // Дополнительные скрипты
+        $(document).ready(function() {
+            // Плавное скрытие прелоадера
+            setTimeout(function() {
+                $('#preloader').fadeOut(500);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

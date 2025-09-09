@@ -1,0 +1,120 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}🔐 Вход в систему - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block extra_css %}
+<style>
+.auth-container {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    max-width: 400px;
+    width: 100%;
+}
+
+.auth-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    text-align: center;
+    color: white;
+}
+
+.auth-body {
+    padding: 2rem;
+}
+
+.form-floating {
+    margin-bottom: 1rem;
+}
+
+.btn-auth {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.auth-links a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 class="mb-0">🔐 Вход в систему</h2>
+            <p class="mb-0 mt-2 opacity-75">Добро пожаловать обратно!</p>
+        </div>
+        
+        <div class="auth-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="id_username" name="username" placeholder="Имя пользователя" required>
+                    <label for="id_username">👤 Имя пользователя</label>
+                </div>
+                
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="id_password" name="password" placeholder="Пароль" required>
+                    <label for="id_password">🔒 Пароль</label>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
+                    <label class="form-check-label" for="remember_me">
+                        Запомнить меня
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-auth">
+                    🚀 Войти
+                </button>
+            </form>
+            
+            <div class="auth-links">
+                <p class="mb-2">Еще нет аккаунта?</p>
+                <a href="{% url 'Blog:register' %}">📝 Зарегистрироваться</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

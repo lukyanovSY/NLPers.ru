@@ -1,0 +1,201 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}📝 Заявка на статус автора - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block extra_css %}
+<style>
+.author-request-container {
+    min-height: 70vh;
+    padding: 2rem 0;
+}
+
+.request-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.request-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    padding: 2rem;
+    text-align: center;
+    color: white;
+}
+
+.request-body {
+    padding: 2rem;
+}
+
+.form-floating {
+    margin-bottom: 1.5rem;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    color: white;
+}
+
+.benefits-list {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.benefits-list h6 {
+    color: #28a745;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.benefits-list ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.benefits-list li {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.errorlist {
+    color: #dc3545;
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+}
+
+.errorlist li {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.back-link {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.back-link a {
+    color: #6c757d;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container author-request-container">
+    <div class="request-card">
+        <div class="request-header">
+            <h2 class="mb-0">📝 Заявка на статус автора</h2>
+            <p class="mb-0 mt-2 opacity-75">Станьте частью команды авторов NLPers.ru!</p>
+        </div>
+        
+        <div class="request-body">
+            <!-- Преимущества -->
+            <div class="benefits-list">
+                <h6>🌟 Что даёт статус автора:</h6>
+                <ul>
+                    <li>📝 Возможность создавать и публиковать статьи</li>
+                    <li>✏️ Редактирование своих постов</li>
+                    <li>🎯 Специальный статус в сообществе</li>
+                    <li>📊 Доступ к статистике ваших статей</li>
+                    <li>🏆 Участие в авторских программах</li>
+                </ul>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-floating">
+                    {{ form.motivation }}
+                    <label for="{{ form.motivation.id_for_label }}">✍️ {{ form.motivation.label }}</label>
+                </div>
+                {% if form.motivation.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.motivation.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <small class="form-text text-muted mb-3 d-block">
+                    {{ form.motivation.help_text }}
+                </small>
+                
+                <div class="form-floating">
+                    {{ form.experience }}
+                    <label for="{{ form.experience.id_for_label }}">🎓 {{ form.experience.label }}</label>
+                </div>
+                {% if form.experience.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.experience.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <small class="form-text text-muted mb-3 d-block">
+                    {{ form.experience.help_text }}
+                </small>
+                
+                <div class="form-floating">
+                    {{ form.sample_topics }}
+                    <label for="{{ form.sample_topics.id_for_label }}">📚 {{ form.sample_topics.label }}</label>
+                </div>
+                {% if form.sample_topics.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.sample_topics.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <small class="form-text text-muted mb-3 d-block">
+                    {{ form.sample_topics.help_text }}
+                </small>
+                
+                <div class="alert alert-info">
+                    <small>
+                        <strong>ℹ️ Обратите внимание:</strong>
+                        Ваша заявка будет рассмотрена администраторами в течение 1-3 рабочих дней. 
+                        О результате рассмотрения вы узнаете в своем личном кабинете.
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn btn-submit">
+                    🚀 Подать заявку
+                </button>
+            </form>
+            
+            <div class="back-link">
+                <a href="{% url 'Blog:dashboard' %}">← Вернуться в личный кабинет</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

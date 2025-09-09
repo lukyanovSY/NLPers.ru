@@ -1,0 +1,1325 @@
+{% extends 'bases.html' %} 
+{% load static %}
+
+{% block content %}
+
+<!-- main-content -->
+<div class="main-content">
+    <main>
+        <div class="banner-bg">
+
+            <!-- ФОНОВЫЙ БАНЕР ГЛАВНОЙ СТРАНИЦЫ -->
+            <div class="banner-area">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12 col-md-8">
+                            <div class="banner-content">
+
+                                <h5 class="title"><span>Вселенная внутри нас.</span></h5><br>
+                                <h5 class="title">Стань лучшей версией себя </h5>
+                               
+                                <a href="login-register.html" class="banner-btn">Начать перевоплощение <i class="fi-sr-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ФОНОВЫЙ БАНЕР ГЛАВНОЙ СТРАНИЦЫ -->
+
+            <!-- РУБРИКИ -->
+            <div class="top-seller-area">
+                <div class="container">
+                    <div class="top-seller-wrap">
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="section-title mb-40">
+                                    <h2 class="title">
+                                        <a href="{% url 'Blog:category_list' %}" style="color: inherit; text-decoration: none;">
+                                            Рубрики сайта <img src="{% static 'nlp/img/icons/title_icon01.png' %}" alt="">
+                                        </a>
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            {% for category in categories %}
+                            <div class="col-xl-3 col-lg-4 col-sm-6">
+                                <div class="top-seller-item">
+                                    <div class="top-seller-img">
+                                                                <a href="{% url 'Blog:category_detail' category.slug %}">
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                        </a>
+                                    </div>
+                                    <div class="top-seller-content">
+                                                                <h5 class="title">
+                            <a href="{% url 'Blog:category_detail' category.slug %}">{{ category.name }}</a>
+                        </h5>
+                                        {% if category.description %}
+                                            <p>{{ category.description|truncatewords:15 }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- РУБРИКИ -->
+            
+        </div>
+
+        <!-- ПОСЛЕДНИЕ СТАТЬИ БЛОГА -->
+        <section class="top-collection-area">
+
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="section-title mb-40">
+                            <h2 class="title">ПОСЛЕДНИЕ СТАТЬИ <img src="{% static 'nlp/img/icons/title_icon01.png' %}" alt=""></h2>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="top-collection-nav"></div>
+                    </div>
+                </div>
+
+                <div class="row top-collection-active">
+                    {% for post in latest_posts %}
+                    <div class="col-xl-3">
+                        <div class="top-collection-item">
+
+                            <div class="collection-item-top">
+                                <ul>
+                                    <li class="avatar">
+                                        <a href="{% url 'Blog:user_profile' post.author.username %}" class="thumb">
+                                            {% if post.author.userprofile.avatar %}
+                                                <img src="{{ post.author.userprofile.avatar.url }}" alt="{{ post.author.username }}">
+                                            {% else %}
+                                                <img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt="{{ post.author.username }}">
+                                            {% endif %}
+                                        </a>
+                                        By <a href="{% url 'Blog:user_profile' post.author.username %}" class="name">{{ post.author.username }}</a>
+                                    </li>
+                                    <li class="info-dots">
+                                        <a href="#" class="dropdown-toggle">
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            {% if post.category %}
+                                                <li><a href="{% url 'Blog:category_detail' post.category.slug %}">{{ post.category.name }}</a></li>
+                                            {% endif %}
+                                            <li><a href="{{ post.get_absolute_url }}">Читать статью</a></li>
+                                            <li><a href="{% url 'Blog:user_profile' post.author.username %}">Профиль автора</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="collection-item-thumb">
+                                <a href="{{ post.get_absolute_url }}">
+                                    {% if post.featured_image %}
+                                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                                    {% else %}
+                                        <img src="{% static 'nlp/img/others/top_collection01.jpg' %}" alt="{{ post.title }}">
+                                    {% endif %}
+                                </a>
+                            </div>
+
+                            <div class="collection-item-content">
+                                <h5 class="title">
+                                    <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                                    {% if post.category %}
+                                        <span class="price">{{ post.category.name }}</span>
+                                    {% endif %}
+                                </h5>
+                            </div>
+
+                            <div class="collection-item-bottom">
+                                <ul>
+                                    <li class="bid"><a href="{{ post.get_absolute_url }}" class="btn">Читать</a></li>
+                                    <li class="wishlist">
+                                        <a href="{{ post.get_absolute_url }}">
+                                            <i class="fas fa-eye"></i> {{ post.views_count }}
+                                        </a>
+                                    </li>
+                                    <li class="likes">
+                                        <a href="{{ post.get_absolute_url }}">
+                                            <i class="fas fa-heart"></i> {{ post.likes_count }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="text-center">
+                            <h4>Пока нет опубликованных статей</h4>
+                            <p>Будьте первым, кто создаст интересную статью!</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </section>
+        <!-- ПОСЛЕДНИЕ СТАТЬИ БЛОГА end -->
+
+        <div class="area-bg">
+
+        <!-- СПИСОК ПОПУЛЯРНЫХ-->
+        <section class="week-features-area">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="section-title mb-35">
+                            <h2 class="title">СПИСОК ПОПУЛЯРНЫХ <img src="{% static 'nlp/img/icons/title_icon02.png' %}" alt=""></h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="week-features-item">
+                            <div class="features-item-top">
+                                <div class="features-avatar">
+                                    <div class="features-avatar-thumb">
+                                        <a href="author-profile.html"><img src="{% static 'nlp/img/others/features_avatar.png' %}" alt=""></a>
+                                    </div>
+                                    <div class="features-avatar-info">
+                                        <h5 class="title"><a href="nft-marketplace.html">Deploy Abstract</a></h5>
+                                        <span>Created by <a href="author-profile.html">Konx</a></span>
+                                    </div>
+                                </div>
+                                <div class="features-item-wishlist">
+                                    <a href="#">100</a>
+                                </div>
+                            </div>
+                            <ul class="features-img-wrap">
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/features_img01.png' %}" alt=""></li>
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/features_img02.png' %}" alt=""></li>
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/features_img03.png' %}" alt=""></li>
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/features_img04.png' %}" alt=""></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="week-features-item">
+                            <div class="features-item-top">
+                                <div class="features-avatar">
+                                    <div class="features-avatar-thumb">
+                                        <a href="author-profile.html"><img src="{% static 'nlp/img/others/features_avatar02.png' %}" alt=""></a>
+                                    </div>
+                                    <div class="features-avatar-info">
+                                        <h5 class="title"><a href="nft-marketplace.html">Random Abstract</a></h5>
+                                        <span>Created by <a href="author-profile.html">Tanuok</a></span>
+                                    </div>
+                                </div>
+                                <div class="features-item-wishlist">
+                                    <a href="#">300</a>
+                                </div>
+                            </div>
+                            <ul class="features-img-wrap">
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/s_features_img01.png' %}" alt=""></li>
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/features_img02.png' %}" alt=""></li>
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/s_features_img03.png' %}" alt=""></li>
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/s_features_img04.png' %}" alt=""></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="week-features-item">
+                            <div class="features-item-top">
+                                <div class="features-avatar">
+                                    <div class="features-avatar-thumb">
+                                        <a href="author-profile.html"><img src="{% static 'nlp/img/others/features_avatar03.png' %}" alt=""></a>
+                                    </div>
+                                    <div class="features-avatar-info">
+                                        <h5 class="title"><a href="nft-marketplace.html">Colorful Abstract</a></h5>
+                                        <span>Created by <a href="author-profile.html">Jonson</a></span>
+                                    </div>
+                                </div>
+                                <div class="features-item-wishlist">
+                                    <a href="#">190</a>
+                                </div>
+                            </div>
+                            <ul class="features-img-wrap">
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/t_features_img01.png' %}" alt=""></li>
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/features_img02.png' %}" alt=""></li>
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/features_img03.png' %}" alt=""></li>
+                                <li class="grid-item"><img src="{% static 'nlp/img/others/t_features_img04.png' %}" alt=""></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+        <!-- СПИСОК ПОПУЛЯРНЫХ -->
+
+        <!--ПОСЛЕДНИЕ ИЗОБРАЖЕНИЯ-->
+        <section class="sell-nfts-area">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="section-title mb-45">
+                            <h2 class="title">ПОСЛЕДНИЕ ИЗОБРАЖЕНИЯ<img src="{% static 'nlp/img/icons/title_icon03.png' %}" alt=""></h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    {% for image in latest_images %}
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="sell-nfts-item">
+                            <div class="image-preview">
+                                <a href="{{ image.get_absolute_url }}">
+                                    {% if image.thumbnail %}
+                                        <img src="{{ image.thumbnail.url }}" alt="{{ image.title }}" class="preview-img">
+                                    {% elif image.file_type == 'image' %}
+                                        <img src="{{ image.file.url }}" alt="{{ image.title }}" class="preview-img">
+                                    {% else %}
+                                        <img src="{% static 'nlp/img/icons/nfts_01.png' %}" alt="{{ image.title }}" class="preview-img">
+                                    {% endif %}
+                                </a>
+                            </div>
+                            <span class="step-count">{{ image.uploaded_at|date:"d.m.Y" }}</span>
+                            <h5 class="title">
+                                <a href="{{ image.get_absolute_url }}">{{ image.title|truncatechars:30 }}</a>
+                            </h5>
+                            <p>Загружено: <a href="{% url 'Blog:user_profile' image.uploaded_by.username %}">{{ image.uploaded_by.username }}</a></p>
+                            {% if image.category %}
+                                <p class="category-tag">{{ image.category.name }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="text-center">
+                            <h4>Пока нет загруженных изображений</h4>
+                            <p>Будьте первым, кто загрузит интересное изображение!</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </section>
+        <!-- ПОСЛЕДНИЕ ИЗОБРАЖЕНИЯ-->
+
+
+        </div>
+
+        <!-- С ФИЛЬТРАЦИЕЙ Лучший продукт года-->
+        <section class="explore-products-area">
+            <div class="container">
+                <div class="row mb-35">
+
+                    <div class="col-md-7 col-sm-8">
+                        <div class="section-title">
+                            <h2 class="title">Лучший продукт года <img src="{% static 'nlp/img/icons/title_icon01.png' %}" alt=""></h2>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 col-sm-4">
+                        <div class="section-button text-end">
+                            <a href="#" class="btn filter-btn filter-toggle"><i class="fi-sr-filter"></i>ФИЛЬТРЫ</a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="filter-category-wrap">
+                    <div class="row">
+                        <div class="col-12">
+                            <ul class="category-list">
+                                <li class="active"><a href="index.html"><img src="{% static 'nlp/img/icons/cat_001.png' %}" alt=""> All</a></li>
+                                <li><a href="nft-marketplace.html"><img src="{% static 'nlp/img/icons/cat_01.png' %}" alt=""> Games</a></li>
+                                <li><a href="nft-marketplace.html"><img src="{% static 'nlp/img/icons/cat_02.png' %}" alt=""> Art</a></li>
+                                <li><a href="nft-marketplace.html"><img src="{% static 'nlp/img/icons/cat_03.png' %}" alt=""> Trading Cards</a></li>
+                                <li><a href="nft-marketplace.html"><img src="{% static 'nlp/img/icons/cat_04.png' %}" alt=""> Music</a></li>
+                                <li><a href="nft-marketplace.html"><img src="{% static 'nlp/img/icons/cat_05.png' %}" alt=""> Domain Names</a></li>
+                                <li><a href="nft-marketplace.html"><img src="{% static 'nlp/img/icons/cat_06.png' %}" alt=""> Memes</a></li>
+                                <li><a href="nft-marketplace.html"><img src="{% static 'nlp/img/icons/cat_07.png' %}" alt=""> Collectibles</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="top-collection-item">
+                            <div class="collection-item-top">
+                                <ul>
+                                    <li class="avatar"><a href="author-profile.html" class="thumb"><img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt=""></a>By <a href="author-profile.html" class="name">Jonson</a></li>
+                                    <li class="info-dots dropdown">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="nft-marketplace.html">Artwork</a></li>
+                                            <li><a href="nft-marketplace.html">Action</a></li>
+                                            <li><a href="nft-marketplace.html">Author Action</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="collection-item-thumb">
+                                <a href="market-single.html"><img src="{% static 'nlp/img/others/top_collection01.jpg' %}" alt=""></a>
+                            </div>
+                            <div class="collection-item-content">
+                                <h5 class="title"><a href="market-single.html">NFT Collection</a> <span class="price">5.4 ETH</span></h5>
+                            </div>
+                            <div class="collection-item-bottom">
+                                <ul>
+                                    <li class="bid"><a href="market-single.html" class="btn">place a bid</a></li>
+                                    <li class="wishlist"><a href="login-register.html">59</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="top-collection-item">
+                            <div class="collection-item-top">
+                                <ul>
+                                    <li class="avatar"><a href="author-profile.html" class="thumb"><img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt=""></a>By <a href="author-profile.html" class="name">Jonson</a></li>
+                                    <li class="info-dots dropdown">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="nft-marketplace.html">Artwork</a></li>
+                                            <li><a href="nft-marketplace.html">Action</a></li>
+                                            <li><a href="nft-marketplace.html">Author Action</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="collection-item-thumb">
+                                <a href="market-single.html"><img src="{% static 'nlp/img/others/top_collection01.jpg' %}" alt=""></a>
+                            </div>
+                            <div class="collection-item-content">
+                                <h5 class="title"><a href="market-single.html">NFT Collection</a> <span class="price">5.4 ETH</span></h5>
+                            </div>
+                            <div class="collection-item-bottom">
+                                <ul>
+                                    <li class="bid"><a href="market-single.html" class="btn">place a bid</a></li>
+                                    <li class="wishlist"><a href="login-register.html">59</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="top-collection-item">
+                            <div class="collection-item-top">
+                                <ul>
+                                    <li class="avatar"><a href="author-profile.html" class="thumb"><img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt=""></a>By <a href="author-profile.html" class="name">Jonson</a></li>
+                                    <li class="info-dots dropdown">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="nft-marketplace.html">Artwork</a></li>
+                                            <li><a href="nft-marketplace.html">Action</a></li>
+                                            <li><a href="nft-marketplace.html">Author Action</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="collection-item-thumb">
+                                <a href="market-single.html"><img src="{% static 'nlp/img/others/top_collection01.jpg' %}" alt=""></a>
+                            </div>
+                            <div class="collection-item-content">
+                                <h5 class="title"><a href="market-single.html">NFT Collection</a> <span class="price">5.4 ETH</span></h5>
+                            </div>
+                            <div class="collection-item-bottom">
+                                <ul>
+                                    <li class="bid"><a href="market-single.html" class="btn">place a bid</a></li>
+                                    <li class="wishlist"><a href="login-register.html">59</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="top-collection-item">
+                            <div class="collection-item-top">
+                                <ul>
+                                    <li class="avatar"><a href="author-profile.html" class="thumb"><img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt=""></a>By <a href="author-profile.html" class="name">Jonson</a></li>
+                                    <li class="info-dots dropdown">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="nft-marketplace.html">Artwork</a></li>
+                                            <li><a href="nft-marketplace.html">Action</a></li>
+                                            <li><a href="nft-marketplace.html">Author Action</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="collection-item-thumb">
+                                <a href="market-single.html"><img src="{% static 'nlp/img/others/top_collection01.jpg' %}" alt=""></a>
+                            </div>
+                            <div class="collection-item-content">
+                                <h5 class="title"><a href="market-single.html">NFT Collection</a> <span class="price">5.4 ETH</span></h5>
+                            </div>
+                            <div class="collection-item-bottom">
+                                <ul>
+                                    <li class="bid"><a href="market-single.html" class="btn">place a bid</a></li>
+                                    <li class="wishlist"><a href="login-register.html">59</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="top-collection-item">
+                            <div class="collection-item-top">
+                                <ul>
+                                    <li class="avatar"><a href="author-profile.html" class="thumb"><img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt=""></a>By <a href="author-profile.html" class="name">Jonson</a></li>
+                                    <li class="info-dots dropdown">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="nft-marketplace.html">Artwork</a></li>
+                                            <li><a href="nft-marketplace.html">Action</a></li>
+                                            <li><a href="nft-marketplace.html">Author Action</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="collection-item-thumb">
+                                <a href="market-single.html"><img src="{% static 'nlp/img/others/top_collection01.jpg' %}" alt=""></a>
+                            </div>
+                            <div class="collection-item-content">
+                                <h5 class="title"><a href="market-single.html">NFT Collection</a> <span class="price">5.4 ETH</span></h5>
+                            </div>
+                            <div class="collection-item-bottom">
+                                <ul>
+                                    <li class="bid"><a href="market-single.html" class="btn">place a bid</a></li>
+                                    <li class="wishlist"><a href="login-register.html">59</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="top-collection-item">
+                            <div class="collection-item-top">
+                                <ul>
+                                    <li class="avatar"><a href="author-profile.html" class="thumb"><img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt=""></a>By <a href="author-profile.html" class="name">Jonson</a></li>
+                                    <li class="info-dots dropdown">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="nft-marketplace.html">Artwork</a></li>
+                                            <li><a href="nft-marketplace.html">Action</a></li>
+                                            <li><a href="nft-marketplace.html">Author Action</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="collection-item-thumb">
+                                <a href="market-single.html"><img src="{% static 'nlp/img/others/top_collection01.jpg' %}" alt=""></a>
+                            </div>
+                            <div class="collection-item-content">
+                                <h5 class="title"><a href="market-single.html">NFT Collection</a> <span class="price">5.4 ETH</span></h5>
+                            </div>
+                            <div class="collection-item-bottom">
+                                <ul>
+                                    <li class="bid"><a href="market-single.html" class="btn">place a bid</a></li>
+                                    <li class="wishlist"><a href="login-register.html">59</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="top-collection-item">
+                            <div class="collection-item-top">
+                                <ul>
+                                    <li class="avatar"><a href="author-profile.html" class="thumb"><img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt=""></a>By <a href="author-profile.html" class="name">Jonson</a></li>
+                                    <li class="info-dots dropdown">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="nft-marketplace.html">Artwork</a></li>
+                                            <li><a href="nft-marketplace.html">Action</a></li>
+                                            <li><a href="nft-marketplace.html">Author Action</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="collection-item-thumb">
+                                <a href="market-single.html"><img src="{% static 'nlp/img/others/top_collection01.jpg' %}" alt=""></a>
+                            </div>
+                            <div class="collection-item-content">
+                                <h5 class="title"><a href="market-single.html">NFT Collection</a> <span class="price">5.4 ETH</span></h5>
+                            </div>
+                            <div class="collection-item-bottom">
+                                <ul>
+                                    <li class="bid"><a href="market-single.html" class="btn">place a bid</a></li>
+                                    <li class="wishlist"><a href="login-register.html">59</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                        <div class="top-collection-item">
+                            <div class="collection-item-top">
+                                <ul>
+                                    <li class="avatar"><a href="author-profile.html" class="thumb"><img src="{% static 'nlp/img/others/top_col_avatar.png' %}" alt=""></a>By <a href="author-profile.html" class="name">Jonson</a></li>
+                                    <li class="info-dots dropdown">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false"></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="nft-marketplace.html">Artwork</a></li>
+                                            <li><a href="nft-marketplace.html">Action</a></li>
+                                            <li><a href="nft-marketplace.html">Author Action</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="collection-item-thumb">
+                                <a href="market-single.html"><img src="{% static 'nlp/img/others/top_collection01.jpg' %}" alt=""></a>
+                            </div>
+                            <div class="collection-item-content">
+                                <h5 class="title"><a href="market-single.html">NFT Collection</a> <span class="price">5.4 ETH</span></h5>
+                            </div>
+                            <div class="collection-item-bottom">
+                                <ul>
+                                    <li class="bid"><a href="market-single.html" class="btn">place a bid</a></li>
+                                    <li class="wishlist"><a href="login-register.html">59</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        <!-- С ФИЛЬТРАЦИЕЙ Лучший продукт года-->
+
+        <!-- НОВЫЕ ИКОНКИ-->
+        <section class="latest-news-area">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="section-title mb-45">
+                            <h2 class="title">НОВЫЕ ИКОНКИ-  <img src="{% static 'nlp/img/icons/title_icon01.png' %}" alt=""></h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-xl-4 col-md-6 col-sm-9">
+                        <div class="latest-news-item">
+                            <div class="latest-news-thumb">
+                                <img src="{% static 'nlp/img/blog/news_thumb01.png' %}" alt="">
+                            </div>
+                            <div class="latest-news-content">
+                                <ul class="latest-news-meta">
+                                    <li><i class="flaticon-user"></i><a href="blog.html">Admin</a></li>
+                                    <li><i class="fi-sr-calendar"></i> Jan 12, 2022</li>
+                                </ul>
+                                <h4 class="title"><a href="blog-details.html">Top 5 Most Popular NFT Games world most powerful ?</a></h4>
+                                <a href="blog-details.html" class="btn">read more</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-md-6 col-sm-9">
+                        <div class="latest-news-item">
+                            <div class="latest-news-thumb">
+                                <img src="{% static 'nlp/img/blog/news_thumb02.png' %}" alt="">
+                            </div>
+                            <div class="latest-news-content">
+                                <ul class="latest-news-meta">
+                                    <li><i class="flaticon-user"></i><a href="blog.html">Admin</a></li>
+                                    <li><i class="fi-sr-calendar"></i> Jan 19, 2022</li>
+                                </ul>
+                                <h4 class="title"><a href="blog-details.html">NFTs, rare digital items worlds crypto collectibles</a></h4>
+                                <a href="blog-details.html" class="btn">read more</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-md-6 col-sm-9">
+                        <div class="latest-news-item">
+                            <div class="latest-news-thumb">
+                                <img src="{% static 'nlp/img/blog/news_thumb03.png' %}" alt="">
+                            </div>
+                            <div class="latest-news-content">
+                                <ul class="latest-news-meta">
+                                    <li><i class="flaticon-user"></i><a href="blog.html">Admin</a></li>
+                                    <li><i class="fi-sr-calendar"></i> Jan 19, 2022</li>
+                                </ul>
+                                <h4 class="title"><a href="blog-details.html">Crypto enthusiasts on a single platform to create</a></h4>
+                                <a href="blog-details.html" class="btn">read more</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        <!-- НОВЫЕ ИКОНКИ -->
+
+        <!-- design-ways-area -->
+        <section class="design-ways-area">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
+                        <div class="design-ways-item">
+                            <div class="overlay-icon"><i class="flaticon-download"></i></div>
+                            <div class="icon"><i class="flaticon-download"></i></div>
+                            <div class="content">
+                                <h3 class="title">Free</h3>
+                                <p>Only two download</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
+                        <div class="design-ways-item">
+                            <div class="overlay-icon"><i class="flaticon-download-1"></i></div>
+                            <div class="icon"><i class="flaticon-download-1"></i></div>
+                            <div class="content">
+                                <h3 class="title">Unlimited</h3>
+                                <p>Personal & commercial use</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
+                        <div class="design-ways-item">
+                            <div class="overlay-icon"><i class="flaticon-help"></i></div>
+                            <div class="icon"><i class="flaticon-help"></i></div>
+                            <div class="content">
+                                <h3 class="title">Support</h3>
+                                <p>You can download</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
+                        <div class="design-ways-item">
+                            <div class="overlay-icon"><i class="flaticon-repairing-service"></i></div>
+                            <div class="icon"><i class="flaticon-repairing-service"></i></div>
+                            <div class="content">
+                                <h3 class="title">Private</h3>
+                                <p>Personal data collection</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- design-ways-area-end -->
+
+        <!--ОТЗЫВЫ-->
+        <section class="testimonial--area">
+            <div class="container">
+                <div class="testimonial-shape-wrap">
+                    <div class="row justify-content-center">
+                        <div class="col-xl-8 col-lg-9 col-md-10">
+                            <div class="testimonial-active">
+                                <div class="testimonial--item text-center">
+                                    <div class="testimonial-rating">
+                                        <img src="{% static 'nlp/img/others/star.png' %}" alt="">
+                                    </div>
+                                    <div class="testimonial--content">
+                                        <p>“ What even is an NFT? NFT stands for non-fungible token, which basically means that it's one kind digital asset that belongs to you and you only. The most popular NFTs right include artwork and music, include videos and even tweets “</p>
+                                        <div class="testimonial--avatar--info">
+                                            <h5 class="title">Alexandra Pilot</h5>
+                                            <a href="contact.html" class="see-all">See All Reviews</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="testimonial--item text-center">
+                                    <div class="testimonial-rating">
+                                        <img src="{% static 'nlp/img/others/star.png' %}" alt="">
+                                    </div>
+                                    <div class="testimonial--content">
+                                        <p>“ What even is an NFT? NFT stands for non-fungible token, which basically means that it's one kind digital asset that belongs to you and you only. The most popular NFTs right include artwork and music, include videos and even tweets “</p>
+                                        <div class="testimonial--avatar--info">
+                                            <h5 class="title">Alexandra Pilot</h5>
+                                            <a href="contact.html" class="see-all">See All Reviews</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="testimonial--item text-center">
+                                    <div class="testimonial-rating">
+                                        <img src="{% static 'nlp/img/others/star.png' %}" alt="">
+                                    </div>
+                                    <div class="testimonial--content">
+                                        <p>“ What even is an NFT? NFT stands for non-fungible token, which basically means that it's one kind digital asset that belongs to you and you only. The most popular NFTs right include artwork and music, include videos and even tweets “</p>
+                                        <div class="testimonial--avatar--info">
+                                            <h5 class="title">Alexandra Pilot</h5>
+                                            <a href="contact.html" class="see-all">See All Reviews</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- ОТЗЫВЫ -->
+
+    </main>
+    <!-- main-area-end -->
+
+
+    
+
+</div>
+<!-- main-content-end -->
+
+<style>
+/* Стили для карточек постов в карусели */
+.top-collection-item {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 400px; /* Фиксированная высота карточки */
+    display: flex;
+    flex-direction: column;
+}
+
+.top-collection-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* Контейнер для изображения */
+.collection-item-thumb {
+    height: 200px; /* Фиксированная высота для изображения */
+    overflow: hidden;
+    position: relative;
+}
+
+.collection-item-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Равномерное масштабирование */
+    transition: transform 0.3s ease;
+}
+
+.top-collection-item:hover .collection-item-thumb img {
+    transform: scale(1.05);
+}
+
+/* Контейнер для контента */
+.collection-item-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+}
+
+.collection-item-content .title {
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+.collection-item-content .title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-size: 16px;
+    font-weight: 600;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Ограничение на 2 строки */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.collection-item-content .title a:hover {
+    color: #667eea;
+}
+
+/* Контейнер для нижней части */
+.collection-item-bottom {
+    margin-top: auto; /* Прижимает к низу */
+    padding: 0 15px 15px;
+}
+
+.collection-item-bottom ul {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.collection-item-bottom .likes a {
+    color: #dc3545;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.collection-item-bottom .wishlist a {
+    color: #17a2b8;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.collection-item-bottom .likes a:hover,
+.collection-item-bottom .wishlist a:hover {
+    opacity: 0.8;
+}
+
+.collection-item-bottom .bid .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 20px;
+}
+
+/* Верхняя часть карточки */
+.collection-item-top {
+    padding: 15px 15px 0;
+}
+
+.collection-item-top ul {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.collection-item-top .avatar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.collection-item-top .avatar .thumb {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: block;
+}
+
+.collection-item-top .avatar .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.collection-item-top .avatar .name {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 767px) {
+    .top-collection-item {
+        height: 350px; /* Меньшая высота на мобильных */
+    }
+    
+    .collection-item-thumb {
+        height: 150px; /* Меньшая высота изображения */
+    }
+    
+    .collection-item-content .title a {
+        font-size: 14px;
+    }
+    
+    .collection-item-bottom ul {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .collection-item-bottom li {
+        margin-bottom: 5px;
+    }
+}
+
+/* Стили для пустого состояния */
+.text-center h4 {
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.text-center p {
+    color: #666;
+    font-style: italic;
+}
+
+/* Дополнительные стили для унификации */
+.top-collection-active .col-xl-3 {
+    margin-bottom: 30px;
+}
+
+.top-collection-item {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Стили для dropdown меню */
+.info-dots {
+    position: relative;
+}
+
+.info-dots .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+    min-width: 200px;
+    padding: 8px 0;
+    margin: 2px 0 0;
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+    display: none;
+}
+
+.info-dots .dropdown-menu.show {
+    display: block;
+}
+
+.info-dots .dropdown-menu li {
+    list-style: none;
+    margin: 0;
+}
+
+.info-dots .dropdown-menu a {
+    display: block;
+    padding: 8px 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.info-dots .dropdown-menu a:hover {
+    background-color: #f8f9fa;
+    color: #667eea;
+}
+
+/* Стили для кнопки dropdown */
+.info-dots .dropdown-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.info-dots .dropdown-toggle:hover {
+    background: rgba(255,255,255,1);
+    transform: scale(1.1);
+}
+
+.info-dots .dropdown-toggle span {
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: #333;
+    border-radius: 50%;
+    margin: 1px 0;
+}
+
+/* Улучшенное позиционирование */
+.collection-item-top {
+    position: relative;
+    z-index: 10;
+}
+
+.info-dots {
+    z-index: 1001;
+}
+
+/* Дополнительные стили для унификации */
+.top-collection-active .col-xl-3 {
+    margin-bottom: 30px;
+}
+
+.top-collection-item {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Стили для dropdown меню */
+.info-dots {
+    position: relative;
+}
+
+.info-dots .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+    min-width: 200px;
+    padding: 8px 0;
+    margin: 2px 0 0;
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+    display: none;
+}
+
+.info-dots .dropdown-menu.show {
+    display: block;
+}
+
+.info-dots .dropdown-menu li {
+    list-style: none;
+    margin: 0;
+}
+
+.info-dots .dropdown-menu a {
+    display: block;
+    padding: 8px 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.info-dots .dropdown-menu a:hover {
+    background-color: #f8f9fa;
+    color: #667eea;
+}
+
+/* Стили для кнопки dropdown */
+.info-dots .dropdown-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.info-dots .dropdown-toggle:hover {
+    background: rgba(255,255,255,1);
+    transform: scale(1.1);
+}
+
+.info-dots .dropdown-toggle span {
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: #333;
+    border-radius: 50%;
+    margin: 1px 0;
+}
+
+/* Улучшенное позиционирование */
+.collection-item-top {
+    position: relative;
+    z-index: 10;
+}
+
+.info-dots {
+    z-index: 1001;
+}
+
+/* Стили для секции последних изображений */
+.sell-nfts-item {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sell-nfts-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.image-preview {
+    margin-bottom: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    height: 200px;
+}
+
+.preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.sell-nfts-item:hover .preview-img {
+    transform: scale(1.05);
+}
+
+.sell-nfts-item .step-count {
+    color: #667eea;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.sell-nfts-item .title {
+    margin-bottom: 10px;
+}
+
+.sell-nfts-item .title a {
+    color: #333;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.sell-nfts-item .title a:hover {
+    color: #667eea;
+}
+
+.sell-nfts-item p {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.sell-nfts-item p a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.sell-nfts-item p a:hover {
+    text-decoration: underline;
+}
+
+.category-tag {
+    background: #667eea;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 767px) {
+    .sell-nfts-item {
+        padding: 15px;
+    }
+    
+    .image-preview {
+        height: 150px;
+    }
+    
+    .sell-nfts-item .title a {
+        font-size: 14px;
+    }
+    
+    .sell-nfts-item p {
+        font-size: 12px;
+    }
+}
+</style>
+
+<script>
+// Улучшенная работа dropdown меню
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+    
+    dropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const dropdownMenu = this.nextElementSibling;
+            const isOpen = dropdownMenu.classList.contains('show');
+            
+            // Закрываем все открытые dropdown
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+            
+            // Открываем/закрываем текущий dropdown
+            if (!isOpen) {
+                dropdownMenu.classList.add('show');
+            }
+        });
+    });
+    
+    // Закрываем dropdown при клике вне его
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.info-dots')) {
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        }
+    });
+    
+    // Закрываем dropdown при нажатии Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        }
+    });
+});
+</script>
+
+{% endblock %}

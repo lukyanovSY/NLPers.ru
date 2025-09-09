@@ -1,0 +1,31 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}Аудио - Архив NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-5">🎵 Аудио</h1>
+                <p class="lead text-muted">Коллекция аудиофайлов и музыки</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h4>🎵 Аудиофайлы будут добавлены позже</h4>
+                <p>Раздел с аудиофайлами находится в разработке.</p>
+                <a href="{% url 'Archive:index' %}" class="btn btn-primary">🏠 В архив</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

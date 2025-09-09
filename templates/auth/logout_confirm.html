@@ -1,0 +1,100 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}🚪 Выход из системы - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block extra_css %}
+<style>
+.logout-container {
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logout-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.logout-header {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    padding: 2rem;
+    color: white;
+}
+
+.logout-body {
+    padding: 2rem;
+}
+
+.btn-logout {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    margin: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+    color: white;
+}
+
+.btn-cancel {
+    background: #6c757d;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    margin: 0.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container logout-container">
+    <div class="logout-card">
+        <div class="logout-header">
+            <h2 class="mb-0">🚪 Выход из системы</h2>
+        </div>
+        
+        <div class="logout-body">
+            <p class="mb-4">Вы уверены, что хотите выйти из системы?</p>
+            
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-logout">
+                    ✅ Да, выйти
+                </button>
+            </form>
+            
+            <a href="javascript:history.back()" class="btn-cancel">
+                ❌ Отмена
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

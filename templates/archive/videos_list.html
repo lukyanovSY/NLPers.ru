@@ -1,0 +1,31 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}Видео - Архив NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-5">🎥 Видео</h1>
+                <p class="lead text-muted">Коллекция видеофайлов и обучающих материалов</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h4>🎥 Видео будут добавлены позже</h4>
+                <p>Раздел с видеофайлами находится в разработке.</p>
+                <a href="{% url 'Archive:index' %}" class="btn btn-primary">🏠 В архив</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

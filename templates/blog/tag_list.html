@@ -1,0 +1,291 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}🏷️ Все теги - NLPers.ru{% endblock %}
+
+{% block meny %}
+
+{% endblock meny %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="section-header">
+                <h1 class="title">
+                    🏷️ Все теги
+                    <img src="{% static 'nlp/img/icons/title_icon01.png' %}" alt="">
+                </h1>
+                <p class="subtitle">
+                    Исследуйте все теги нашего сайта
+                    {% if total_tags %}
+                        <span class="badge bg-primary">{{ total_tags }} тегов</span>
+                    {% endif %}
+                    {% if total_posts %}
+                        <span class="badge bg-success">{{ total_posts }} статей</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Поиск тегов -->
+            <div class="search-section mb-4">
+                <form method="get" class="search-form">
+                    <div class="input-group">
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="🔍 Поиск тегов..."
+                               value="{{ search_query|default:'' }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Найти
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Список тегов -->
+            <div class="row">
+                {% for tag in tags %}
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
+                    <div class="tag-card" style="border-left: 4px solid {{ tag.color|default:'#6c757d' }};">
+                        <div class="tag-content">
+                            <div class="tag-header">
+                                {% if tag.icon %}
+                                    <i class="{{ tag.icon }} tag-icon"></i>
+                                {% else %}
+                                    <i class="fas fa-tag tag-icon"></i>
+                                {% endif %}
+                                <h5 class="tag-title">
+                                    <a href="{% url 'Blog:tag_detail' tag.slug %}">
+                                        {{ tag.name }}
+                                    </a>
+                                </h5>
+                            </div>
+                            {% if tag.description %}
+                                <p class="tag-description">
+                                    {{ tag.description|truncatewords:15 }}
+                                </p>
+                            {% endif %}
+                                                            <div class="tag-stats">
+                                    <span class="posts-count">
+                                        <i class="fas fa-file-alt"></i>
+                                        {{ tag.posts_count|default:0 }} статей
+                                    </span>
+                                    <span class="files-count">
+                                        <i class="fas fa-download"></i>
+                                        {{ tag.archive_files_count|default:0 }} файлов
+                                    </span>
+                                    <span class="total-count">
+                                        <i class="fas fa-th-large"></i>
+                                        {{ tag.total_content_count|default:0 }} всего
+                                    </span>
+                                    {% if tag.is_active %}
+                                        <span class="status-badge active">Активен</span>
+                                    {% else %}
+                                        <span class="status-badge inactive">Неактивен</span>
+                                    {% endif %}
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="empty-state">
+                        <i class="fas fa-tags"></i>
+                        <h3>Теги не найдены</h3>
+                        <p>Попробуйте изменить поисковый запрос или обратитесь к администратору.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Пагинация -->
+            {% if is_paginated %}
+            <div class="pagination-wrapper">
+                <nav aria-label="Навигация по страницам">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.tag-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.tag-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.tag-content {
+    padding: 20px;
+}
+
+.tag-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.tag-icon {
+    font-size: 1.5rem;
+    margin-right: 10px;
+    color: #667eea;
+}
+
+.tag-title {
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+.tag-title a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.tag-title a:hover {
+    color: #667eea;
+}
+
+.tag-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.tag-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.posts-count {
+    color: #666;
+}
+
+.posts-count i {
+    margin-right: 5px;
+    color: #667eea;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.search-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.search-form .input-group {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.pagination-wrapper {
+    margin-top: 40px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-header .title {
+    margin-bottom: 10px;
+}
+
+.section-header .subtitle {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.badge {
+    margin-left: 10px;
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %} 

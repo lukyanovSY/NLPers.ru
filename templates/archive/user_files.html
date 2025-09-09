@@ -1,0 +1,305 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}📁 Мои файлы - {{ user.username }} - Архив NLPers.ru{% endblock %}
+
+{% block extra_css %}
+<style>
+.user-files-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.stats-cards {
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+    text-align: center;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.stats-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.file-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.file-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.file-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    margin-right: 1rem;
+}
+
+.file-info h5 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.file-meta {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-public {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.btn-action {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin: 0.25rem;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-view {
+    background: #007bff;
+    color: white;
+}
+
+.btn-view:hover {
+    background: #0056b3;
+    color: white;
+}
+
+.btn-edit {
+    background: #28a745;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #1e7e34;
+    color: white;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Заголовок страницы -->
+<div class="user-files-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="mb-3">📁 Мои файлы</h1>
+                <p class="mb-0 opacity-75">Управляйте своими загруженными файлами</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Статистика -->
+    <div class="row stats-cards">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-number">{{ total_files }}</div>
+                <div class="text-muted">📁 Всего файлов</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-number">{{ public_files }}</div>
+                <div class="text-muted">✅ Опубликовано</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-number">{{ pending_files }}</div>
+                <div class="text-muted">⏳ На модерации</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопки действий -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4>Мои файлы</h4>
+                <a href="{% url 'Archive:file_upload' %}" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i>Загрузить новый файл
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список файлов -->
+    {% if files %}
+        <div class="row">
+            {% for file in files %}
+            <div class="col-md-6 col-lg-4">
+                <div class="file-card">
+                    <div class="d-flex align-items-start">
+                        <div class="file-icon" style="background: {% if file.category.color %}{{ file.category.color }}{% else %}#667eea{% endif %};">
+                            {% if file.file_type == 'image' %}
+                                <i class="fas fa-image"></i>
+                            {% elif file.file_type == 'video' %}
+                                <i class="fas fa-video"></i>
+                            {% elif file.file_type == 'audio' %}
+                                <i class="fas fa-music"></i>
+                            {% elif file.file_type == 'document' %}
+                                <i class="fas fa-file-alt"></i>
+                            {% else %}
+                                <i class="fas fa-file"></i>
+                            {% endif %}
+                        </div>
+                        <div class="file-info flex-grow-1">
+                            <h5 class="mb-1">
+                                <a href="{% url 'Archive:file_detail' file.pk %}" class="text-decoration-none">
+                                    {{ file.title }}
+                                </a>
+                            </h5>
+                            <div class="file-meta mb-2">
+                                <div>📅 {{ file.uploaded_at|date:"d.m.Y" }}</div>
+                                <div>📥 {{ file.downloads_count }} скачиваний</div>
+                                <div>👁️ {{ file.views_count }} просмотров</div>
+                                {% if file.category %}
+                                    <div>📂 {{ file.category.name }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Статус файла -->
+                            <div class="mb-2">
+                                {% if file.is_public %}
+                                    <span class="status-badge status-public">✅ Опубликован</span>
+                                {% else %}
+                                    <span class="status-badge status-pending">⏳ На модерации</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Действия -->
+                            <div class="mt-2">
+                                <a href="{% url 'Archive:file_detail' file.pk %}" class="btn-action btn-view">
+                                    <i class="fas fa-eye"></i> Просмотр
+                                </a>
+                                {% if file.is_public %}
+                                    <a href="{% url 'Archive:file_download' file.pk %}" class="btn-action btn-view">
+                                        <i class="fas fa-download"></i> Скачать
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Пагинация -->
+        {% if is_paginated %}
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="Навигация по страницам">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; Первая</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Следующая</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-file-upload"></i>
+                    <h4>У вас пока нет загруженных файлов</h4>
+                    <p class="text-muted">Начните с загрузки первого файла в архив</p>
+                    <a href="{% url 'Archive:file_upload' %}" class="btn btn-primary">
+                        <i class="fas fa-upload me-2"></i>Загрузить первый файл
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

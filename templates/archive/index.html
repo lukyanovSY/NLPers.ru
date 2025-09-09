@@ -1,0 +1,211 @@
+{% extends "bases.html" %}
+{% load static %}
+
+{% block title %}📁 Архив файлов - NLPers.ru{% endblock %}
+
+{% block meny %}
+  
+{% endblock meny %}
+
+{% block extra_css %}
+<style>
+.archive-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.stats-section {
+    margin-bottom: 3rem;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+    text-align: center;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.stats-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.categories-section {
+    margin-bottom: 3rem;
+}
+
+.category-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+    text-align: center;
+    cursor: pointer;
+}
+
+.category-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.category-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #667eea;
+}
+
+.section-title {
+    margin-bottom: 2rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Заголовок архива -->
+<div class="archive-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <h1 class="mb-3">📁 Архив файлов</h1>
+                <p class="mb-0 opacity-75">Полезные материалы и ресурсы для изучения</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Статистика -->
+    <div class="stats-section">
+        <h3 class="section-title">📊 Статистика архива</h3>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ total_files }}</div>
+                    <div class="text-muted">📁 Всего файлов</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ categories.count }}</div>
+                    <div class="text-muted">📂 Категорий</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ recent_files.count }}</div>
+                    <div class="text-muted">🆕 Новых за неделю</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">{{ total_downloads|default:0 }}</div>
+                    <div class="text-muted">📥 Скачиваний</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Категории -->
+    <div class="categories-section">
+        <h3 class="section-title">📂 Категории файлов</h3>
+        <div class="row">
+            {% for category in categories %}
+            <div class="col-md-4 col-lg-3">
+                <a href="{% url 'Archive:category_detail' category.pk %}" class="text-decoration-none">
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <i class="{{ category.icon|default:'fas fa-folder' }}"></i>
+                        </div>
+                        <h5 class="mb-2">{{ category.name }}</h5>
+                        <p class="text-muted mb-2">{{ category.description|truncatewords:10 }}</p>
+                        <span class="badge" style="background-color: {{ category.color }}">
+                            {{ category.files_count }} файлов
+                        </span>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Последние файлы -->
+    <div class="recent-files-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="section-title mb-0">🆕 Последние файлы</h3>
+            <a href="{% url 'Archive:file_list' %}" class="btn btn-primary">
+                <i class="fas fa-list me-2"></i>Все файлы
+            </a>
+        </div>
+        
+        {% if recent_files %}
+            <div class="row">
+                {% for file in recent_files|slice:":6" %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    {% include 'archive/includes/file_card.html' with file=file %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'Archive:file_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-right me-2"></i>Показать все файлы
+                </a>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-file-upload"></i>
+                <h4>Пока нет файлов в архиве</h4>
+                <p class="text-muted">Будьте первым, кто загрузит полезные материалы!</p>
+                {% if user.is_authenticated %}
+                    {% if user.groups.all %}
+                        {% for group in user.groups.all %}
+                            {% if group.name == 'Authors' %}
+                                <a href="{% url 'Archive:file_upload' %}" class="btn btn-primary">
+                                    <i class="fas fa-upload me-2"></i>Загрузить файл
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Включаем модальное окно для просмотра медиа -->
+{% include 'archive/includes/media_modal.html' %}
+{% endblock %}
