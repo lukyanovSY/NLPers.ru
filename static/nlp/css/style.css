@@ -1149,6 +1149,54 @@ label {
     margin-top: auto;
 }
 
+/* Custom Tooltips for Sidebar Icons */
+.sidebar-icon ul li a {
+    position: relative;
+}
+
+.sidebar-icon ul li a::before {
+    content: attr(title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 15px;
+    background: var(--secondary-color);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--icon-border-color);
+}
+
+.sidebar-icon ul li a::after {
+    content: "";
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 9px;
+    border: 6px solid transparent;
+    border-right-color: var(--secondary-color);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+    z-index: 1001;
+}
+
+.sidebar-icon ul li a:hover::before,
+.sidebar-icon ul li a:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
 /* 5. Breadcrumb */
 .breadcrumb-bg {
 	background-image: url(../img/bg/breadcrumb_bg.png);
@@ -1252,12 +1300,12 @@ label {
 	justify-content: center;
 }
 .category-list li {
-    margin: 4px 20px;
+    margin: 1px 20px; /* уменьшено с 4px 20px в 4 раза */
 }
 .category-list li img {
 	max-width: 19px;
 	flex: 0 0 19px;
-	margin-right: 10px;
+	margin-right: 3px; /* уменьшено с 10px в 3+ раза */
 }
 .category-list li a {
     color: #B4B2B2;
@@ -1345,11 +1393,11 @@ label {
     margin: 0 0 15px auto;
 }
 .filter-category-wrap {
-    padding: 15px 25px;
-    margin-bottom: 30px;
+    padding: 5px 25px; /* уменьшено с 15px 25px в 3 раза */
+    margin-bottom: 10px; /* уменьшено с 30px в 3 раза */
     background: var(--primary-color);
     border-radius: 8px;
-    display: none;
+    display: block; /* меню фильтров открыто по умолчанию */
 }
 
 /* 7. Banner */
@@ -1845,7 +1893,7 @@ label {
 
 /* 9. Top Collection */
 .top-collection-area {
-    padding: 80px 0 50px;
+    padding: 30px 0 20px;
 }
 .top-collection-item {
     background: var(--primary-color);
@@ -1865,7 +1913,7 @@ label {
 	align-items: center;
 	color: var(--purple-color);
 	font-size: 13px;
-	font-weight: 600;
+	font-weight: 200;
 }
 .collection-item-top > ul .thumb {
     display: block;
@@ -1927,11 +1975,13 @@ label {
     border-top: 2px solid #262142;
     margin-top: 22px;
 }
+
 .collection-item-bottom .btn {
     min-width: 132px;
     font-size: 13px;
     padding: 15px 20px;
 }
+
 .collection-item-bottom .btn::before {
 	opacity: .7;
 }
@@ -1963,6 +2013,57 @@ label {
 .collection-item-bottom .wishlist a:hover::before {
 	color: var(--purple-color);
 }
+/* Карточки тегов - увеличены в 1.5 раза и одинакового размера */
+#tags-container .top-collection-item {
+    padding: 8px 20px 8px; /* увеличили в 1.5 раза от минимального */
+    margin-bottom: 8px; /* увеличили отступ между карточками */
+    min-height: 60px; /* фиксированная минимальная высота для одинакового размера */
+    height: 60px; /* фиксированная высота для всех карточек */
+    display: flex; /* flex для выравнивания содержимого */
+    align-items: center; /* вертикальное выравнивание по центру */
+}
+
+#tags-container .collection-item-bottom {
+    width: 100%; /* занимает всю ширину карточки */
+    height: 100%; /* занимает всю высоту карточки */
+    display: flex; /* flex для выравнивания */
+    align-items: center; /* вертикальное выравнивание */
+}
+
+#tags-container .collection-item-bottom ul {
+    padding-top: 0px; /* убрали отступ сверху */
+    margin-top: 0px; /* убрали отступ сверху */
+    padding-bottom: 0px; /* убрали отступ снизу */
+    margin-bottom: 0px; /* убрали отступ снизу */
+    width: 100%; /* занимает всю ширину */
+    height: 100%; /* занимает всю высоту */
+    display: flex; /* flex для выравнивания элементов */
+    align-items: center; /* вертикальное выравнивание */
+    justify-content: space-between; /* горизонтальное распределение */
+}
+
+#tags-container .collection-item-bottom .btn {
+    padding: 6px 20px; /* увеличили отступы в 1.5 раза */
+    font-size: 11px; /* размер шрифта не трогаем */
+    min-width: 80px; /* минимальная ширина */
+    line-height: 1.3; /* увеличили межстрочный интервал */
+    height: auto; /* автоматическая высота кнопки */
+}
+
+#tags-container .collection-item-bottom .wishlist {
+    padding: 0px; /* убрали отступы */
+    margin: 0px; /* убрали отступы */
+    display: flex; /* flex для выравнивания */
+    align-items: center; /* вертикальное выравнивание */
+}
+
+#tags-container .collection-item-bottom .wishlist small {
+    font-size: 10px; /* размер шрифта для статистики */
+    line-height: 1.2; /* увеличили межстрочный интервал */
+    margin: 0px; /* убрали отступы */
+    padding: 0px; /* убрали отступы */
+}
+
 .top-collection-nav {
     display: flex;
     align-items: center;
@@ -2176,6 +2277,100 @@ label {
 }
 .inner-week-features-area .section-button .btn {
 	min-width: 175px;
+}
+
+/* Дополнительные стили для динамических категорий */
+.category-stats {
+	margin-top: 15px;
+	padding-top: 15px;
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-row {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 10px;
+}
+
+.stat-item {
+	display: flex;
+	align-items: center;
+	font-size: 12px;
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.stat-item i {
+	margin-right: 5px;
+	font-size: 14px;
+	color: var(--secondary-color);
+}
+
+.category-description {
+	font-size: 12px;
+	color: rgba(255, 255, 255, 0.7);
+	line-height: 1.4;
+	margin: 0;
+}
+
+.tag-text {
+	display: inline-block;
+	text-decoration: none;
+	transition: all 0.3s ease;
+}
+
+.tag-text:hover {
+	transform: scale(1.05);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.no-tags {
+	color: rgba(255, 255, 255, 0.5);
+	font-size: 12px;
+	font-style: italic;
+}
+
+/* Адаптивность для категорий */
+@media (max-width: 1200px) {
+	.week-features-item {
+		margin-bottom: 25px;
+	}
+}
+
+@media (max-width: 768px) {
+	.week-features-item {
+		padding: 20px 15px;
+		margin-bottom: 20px;
+	}
+	
+	.stats-row {
+		flex-direction: column;
+		gap: 8px;
+	}
+	
+	.stat-item {
+		justify-content: center;
+	}
+}
+
+/* Улучшенные стили для тегов */
+.features-img-wrap .grid-item a {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 40px;
+	transition: all 0.3s ease;
+}
+
+.features-img-wrap .grid-item a:hover {
+	transform: translateY(-2px);
+}
+
+.features-img-wrap .grid-item i {
+	transition: all 0.3s ease;
+}
+
+.features-img-wrap .grid-item a:hover i {
+	transform: scale(1.1);
 }
 
 /* NFTS Sell */
@@ -4228,4 +4423,388 @@ label {
     -webkit-transform: scale(0);
   }
 
+}
+
+/* ===================================
+   CKEditor5 Styles - Чёрный цвет текста по умолчанию
+===================================== */
+
+/* Основные стили для редактора */
+.ck-editor__editable {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+}
+
+.ck-editor__editable p {
+    color: #000000 !important;
+}
+
+.ck-editor__editable h1,
+.ck-editor__editable h2,
+.ck-editor__editable h3,
+.ck-editor__editable h4,
+.ck-editor__editable h5,
+.ck-editor__editable h6 {
+    color: #000000 !important;
+}
+
+.ck-editor__editable blockquote {
+    color: #000000 !important;
+    border-left: 4px solid #007bff;
+    padding-left: 20px;
+    margin: 20px 0;
+    font-style: italic;
+}
+
+.ck-editor__editable pre {
+    color: #000000 !important;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 15px;
+    overflow-x: auto;
+}
+
+.ck-editor__editable code {
+    color: #000000 !important;
+    background-color: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+}
+
+.ck-editor__editable ul,
+.ck-editor__editable ol {
+    color: #000000 !important;
+}
+
+.ck-editor__editable li {
+    color: #000000 !important;
+}
+
+.ck-editor__editable a {
+    color: #007bff !important;
+    text-decoration: underline;
+}
+
+.ck-editor__editable a:hover {
+    color: #0056b3 !important;
+}
+
+/* Стили для всех элементов в редакторе */
+.ck-editor__editable * {
+    color: #000000 !important;
+}
+
+/* Переопределение для специальных элементов */
+.ck-editor__editable .ck-widget {
+    color: #000000 !important;
+}
+
+.ck-editor__editable .ck-widget__type-around {
+    color: #000000 !important;
+}
+
+/* ===================================
+   Sites Mega Menu Styles
+===================================== */
+
+/* Основной контейнер мега-меню */
+.sites-mega-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--header-background-color);
+    border: 1px solid var(--header-border-color);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease-in-out;
+    z-index: 9999;
+    min-width: 800px;
+    max-width: 1000px;
+    padding: 20px;
+}
+
+/* Показываем мега-меню при наведении */
+.sites-dropdown:hover .sites-mega-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Контейнер для карточек сайтов */
+.sites-mega-menu .sites-container {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    gap: 20px !important;
+    max-height: 500px !important;
+    overflow-y: auto !important;
+    width: 100% !important;
+}
+
+/* Карточка сайта */
+.sites-mega-menu .site-card {
+    background: var(--secondary-color) !important;
+    border: 1px solid var(--icon-border-color) !important;
+    border-radius: 8px !important;
+    padding: 15px !important;
+    transition: all 0.3s ease-in-out !important;
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: 200px !important;
+}
+
+.site-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(99, 69, 237, 0.2);
+    border-color: var(--purple-color);
+}
+
+/* Изображение сайта */
+.sites-mega-menu .site-image {
+    width: 100% !important;
+    height: 120px !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    margin-bottom: 12px !important;
+    position: relative !important;
+    display: block !important;
+}
+
+.site-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out;
+}
+
+.site-card:hover .site-image img {
+    transform: scale(1.05);
+}
+
+/* Плейсхолдер для изображения */
+.site-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--dark-blue-color), var(--purple-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+/* Информация о сайте */
+.sites-mega-menu .site-info {
+    text-align: left !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.site-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--heading-text-color);
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.site-description {
+    font-size: 13px;
+    color: var(--body-text-color);
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Ссылка на сайт */
+.site-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--purple-color);
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    padding: 6px 12px;
+    border: 1px solid var(--purple-color);
+    border-radius: 4px;
+    background: transparent;
+}
+
+.site-link:hover {
+    background: var(--purple-color);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.site-link i {
+    font-size: 10px;
+}
+
+/* Сообщение когда нет сайтов */
+.no-sites {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--body-text-color);
+}
+
+.no-sites p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .sites-mega-menu {
+        position: fixed;
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        min-width: auto;
+        max-width: none;
+        max-height: 70vh;
+    }
+    
+    .sites-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        max-height: 60vh;
+    }
+    
+    .site-card {
+        padding: 12px;
+    }
+    
+    .site-image {
+        height: 100px;
+    }
+}
+
+/* Адаптивность для планшетов */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .sites-container {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+    }
+}
+
+/* Анимация появления карточек */
+.site-card {
+    animation: fadeInUp 0.3s ease-in-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Задержка анимации для каждой карточки */
+.site-card:nth-child(1) { animation-delay: 0.1s; }
+.site-card:nth-child(2) { animation-delay: 0.2s; }
+.site-card:nth-child(3) { animation-delay: 0.3s; }
+.site-card:nth-child(4) { animation-delay: 0.4s; }
+.site-card:nth-child(5) { animation-delay: 0.5s; }
+.site-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Стили для популярных категорий */
+.category-main-image {
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-main-image:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.category-big-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.category-big-image:hover {
+    transform: scale(1.05);
+}
+
+/* Стили для тегов категорий */
+.features-img-wrap li.grid-item a {
+    display: block;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.features-img-wrap li.grid-item a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.features-img-wrap li.grid-item img {
+    transition: transform 0.2s ease;
+}
+
+.features-img-wrap li.grid-item a:hover img {
+    transform: scale(1.1);
+}
+
+/* Стили для авторов */
+.features-avatar-thumb a {
+    transition: transform 0.2s ease;
+}
+
+.features-avatar-thumb a:hover {
+    transform: scale(1.1);
+}
+
+/* Стили для названий категорий */
+.features-avatar-info .title a {
+    color: var(--heading-text-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.features-avatar-info .title a:hover {
+    color: #E039FD;
+}
+
+/* Стили для счетчиков */
+.features-item-wishlist a {
+    background: linear-gradient(135deg, #E039FD, #6345ED);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.features-item-wishlist a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(224, 57, 253, 0.4);
 }
